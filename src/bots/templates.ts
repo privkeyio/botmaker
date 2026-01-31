@@ -22,10 +22,28 @@ export interface BotWorkspaceConfig {
   botId: string;
   botName: string;
   aiProvider: string;
+  apiKey: string;
   model: string;
   channel: ChannelConfig;
   persona: BotPersona;
   port: number;
+}
+
+/**
+ * Generate auth-profiles.json for OpenClaw API authentication.
+ * OpenClaw reads this from agents/main/agent/auth-profiles.json.
+ */
+function generateAuthProfiles(provider: string, apiKey: string): object {
+  return {
+    version: 1,
+    profiles: {
+      [`${provider}:default`]: {
+        type: 'api_key',
+        provider: provider,
+        key: apiKey,
+      },
+    },
+  };
 }
 
 /**
@@ -154,6 +172,15 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   chmodSync(soulPath, 0o666);
   chmodSync(identityPath, 0o666);
   chmodSync(agentsPath, 0o666);
+
+  // Create auth-profiles.json for OpenClaw API authentication
+  const agentDir = join(botDir, 'agents', 'main', 'agent');
+  mkdirSync(agentDir, { recursive: true, mode: 0o777 });
+  chmodSync(agentDir, 0o777);
+  const authProfilesPath = join(agentDir, 'auth-profiles.json');
+  const authProfiles = generateAuthProfiles(config.aiProvider, config.apiKey);
+  writeFileSync(authProfilesPath, JSON.stringify(authProfiles, null, 2));
+  chmodSync(authProfilesPath, 0o666);
 }
 
 /**

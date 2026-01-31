@@ -180,6 +180,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         botId: bot.id,
         botName: body.name,
         aiProvider: body.ai_provider,
+        apiKey: body.api_key,
         model: body.model,
         channel: {
           type: body.channel_type,
