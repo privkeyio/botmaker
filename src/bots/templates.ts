@@ -76,6 +76,7 @@ function generateOpenclawConfig(config: BotWorkspaceConfig): object {
         model: {
           primary: modelSpec,
         },
+        workspace: 'workspace',
       },
     },
   };
