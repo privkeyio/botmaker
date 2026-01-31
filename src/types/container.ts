@@ -43,6 +43,8 @@ export interface ContainerConfig {
   hostWorkspacePath: string;
   /** Host path for secrets bind mount (Docker daemon perspective) */
   hostSecretsPath: string;
+  /** Host path for sandbox bind mount (Docker daemon perspective) */
+  hostSandboxPath: string;
   gatewayToken: string;
 }
 

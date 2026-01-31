@@ -58,7 +58,8 @@ export class DockerService {
         HostConfig: {
           Binds: [
             `${config.hostSecretsPath}:/run/secrets:ro`,
-            `${config.hostWorkspacePath}:/app/botdata:rw`
+            `${config.hostWorkspacePath}:/app/botdata:rw`,
+            `${config.hostSandboxPath}:/app/workspace:rw`
           ],
           PortBindings: {
             [`${config.port}/tcp`]: [{ HostPort: String(config.port) }]

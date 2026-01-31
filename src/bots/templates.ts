@@ -206,6 +206,13 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   mkdirSync(sessionsDir, { recursive: true, mode: 0o777 });
   chmodSync(sessionsDir, 0o777);
   chownSync(sessionsDir, OPENCLAW_UID, OPENCLAW_GID);
+
+  // Pre-create sandbox directory for OpenClaw code execution
+  // OpenClaw hardcodes /app/workspace for sandbox operations
+  const sandboxDir = join(botDir, 'sandbox');
+  mkdirSync(sandboxDir, { recursive: true, mode: 0o777 });
+  chmodSync(sandboxDir, 0o777);
+  chownSync(sandboxDir, OPENCLAW_UID, OPENCLAW_GID);
 }
 
 /**

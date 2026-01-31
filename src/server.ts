@@ -234,6 +234,7 @@ export async function buildServer(): Promise<FastifyInstance> {
       // Build environment
       const hostWorkspacePath = join(hostDataDir, 'bots', bot.hostname);
       const hostSecretsPath = join(hostSecretsDir, bot.hostname);
+      const hostSandboxPath = join(hostDataDir, 'bots', bot.hostname, 'sandbox');
       const environment = [
         `BOT_ID=${bot.id}`,
         `BOT_NAME=${body.name}`,
@@ -257,6 +258,7 @@ export async function buildServer(): Promise<FastifyInstance> {
         port,
         hostWorkspacePath,
         hostSecretsPath,
+        hostSandboxPath,
         gatewayToken,
       });
 
