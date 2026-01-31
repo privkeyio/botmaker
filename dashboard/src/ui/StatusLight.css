@@ -58,6 +58,14 @@
               0 0 8px var(--status-created-glow);
 }
 
+.status-light--starting {
+  background: var(--status-starting);
+  --glow-color: var(--status-starting-glow);
+  box-shadow: 0 0 4px var(--status-starting-glow),
+              0 0 8px var(--status-starting-glow);
+  animation: led-startup 0.6s ease-in-out infinite;
+}
+
 /* Label styling */
 .status-light-label {
   font-size: 12px;
@@ -77,4 +85,8 @@
 
 .status-light--created + .status-light-label {
   color: var(--status-created);
+}
+
+.status-light--starting + .status-light-label {
+  color: var(--status-starting);
 }

@@ -88,3 +88,25 @@
 .bot-link-url:hover::before {
   left: 100%;
 }
+
+/* Disabled state for starting */
+.bot-link-url--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.bot-link-url--disabled .bot-link-text {
+  color: var(--status-starting);
+}
+
+/* Spinner for loading state */
+.bot-link-spinner {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--status-starting-glow);
+  border-top-color: var(--status-starting);
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+}

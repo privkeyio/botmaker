@@ -12,6 +12,12 @@
   }
 }
 
+/* LED Startup Animation - for starting status */
+@keyframes led-startup {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
 /* LED Blink Animation - for error status */
 @keyframes led-blink {
   0%, 100% {

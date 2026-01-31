@@ -16,6 +16,7 @@ interface StatusSectionProps {
 
 const statusTitles: Record<BotStatus, string> = {
   running: 'Running',
+  starting: 'Starting',
   stopped: 'Stopped',
   error: 'Error',
   created: 'Created',

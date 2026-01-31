@@ -1,4 +1,4 @@
-export type BotStatus = 'created' | 'running' | 'stopped' | 'error';
+export type BotStatus = 'created' | 'starting' | 'running' | 'stopped' | 'error';
 
 export interface ContainerStatus {
   id: string;

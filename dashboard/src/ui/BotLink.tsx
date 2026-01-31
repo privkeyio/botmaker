@@ -3,6 +3,7 @@ import './BotLink.css';
 interface BotLinkProps {
   port: number;
   hostname?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -23,9 +24,21 @@ function getLanHost(fallback?: string): string {
   return host;
 }
 
-export function BotLink({ port, hostname }: BotLinkProps) {
+export function BotLink({ port, hostname, disabled }: BotLinkProps) {
   const host = getLanHost(hostname);
   const url = `http://${host}:${port}/`;
+
+  if (disabled) {
+    return (
+      <div className="bot-link">
+        <div className="bot-link-label">Control Panel</div>
+        <div className="bot-link-url bot-link-url--disabled">
+          <span className="bot-link-spinner" />
+          <span className="bot-link-text">Starting...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bot-link">

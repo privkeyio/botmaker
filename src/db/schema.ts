@@ -21,7 +21,27 @@ export function createSchema(db: Database.Database): void {
     )
   `);
 
+  // Migration: Add hostname column if missing (for existing databases)
+  migrateAddHostnameColumn(db);
+
   // Create indexes for common queries
   db.exec(`CREATE INDEX IF NOT EXISTS idx_bots_status ON bots(status)`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_bots_hostname ON bots(hostname)`);
+}
+
+/**
+ * Migration: Add hostname column to existing bots table.
+ * Populates hostname from name for existing rows.
+ */
+function migrateAddHostnameColumn(db: Database.Database): void {
+  // Check if hostname column exists using PRAGMA table_info
+  const columns = db.prepare('PRAGMA table_info(bots)').all() as Array<{ name: string }>;
+  const hasHostname = columns.some(col => col.name === 'hostname');
+
+  if (!hasHostname) {
+    // Add column (SQLite doesn't support NOT NULL for ALTER TABLE ADD COLUMN without default)
+    db.exec('ALTER TABLE bots ADD COLUMN hostname TEXT');
+    // Populate hostname from name for existing rows
+    db.exec('UPDATE bots SET hostname = name WHERE hostname IS NULL');
+  }
 }

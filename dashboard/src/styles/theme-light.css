@@ -62,4 +62,6 @@
   --status-error-glow: rgba(220, 38, 38, 0.5);
   --status-created: #0099cc;
   --status-created-glow: rgba(0, 153, 204, 0.5);
+  --status-starting: #e09500;
+  --status-starting-glow: rgba(224, 149, 0, 0.5);
 }

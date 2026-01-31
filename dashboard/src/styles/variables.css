@@ -49,4 +49,6 @@
   --status-error-glow: rgba(255, 59, 59, 0.6);
   --status-created: #00d4ff;
   --status-created-glow: rgba(0, 212, 255, 0.6);
+  --status-starting: #ffaa00;
+  --status-starting-glow: rgba(255, 170, 0, 0.6);
 }
