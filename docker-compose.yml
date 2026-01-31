@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   botmaker:
     build: .
@@ -16,9 +14,9 @@ services:
       - PORT=7100
       - DATA_DIR=/app/data
       - SECRETS_DIR=/app/secrets
-      # Host paths for Docker bind mounts (bot containers created from BotMaker)
-      - HOST_DATA_DIR=/var/lib/docker/volumes/botmaker_botmaker-data/_data
-      - HOST_SECRETS_DIR=/var/lib/docker/volumes/botmaker_botmaker-secrets/_data
+      # Volume names for runtime path discovery
+      - DATA_VOLUME_NAME=botmaker_botmaker-data
+      - SECRETS_VOLUME_NAME=botmaker_botmaker-secrets
       - OPENCLAW_IMAGE=openclaw:latest
     restart: unless-stopped
     healthcheck:

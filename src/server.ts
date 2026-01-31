@@ -44,10 +44,35 @@ interface CreateBotBody {
 }
 
 /**
+ * Resolve host paths for Docker bind mounts.
+ * If volume names are configured, inspect them to get actual host paths.
+ * Otherwise, fall back to using the configured directories directly.
+ */
+async function resolveHostPaths(config: ReturnType<typeof getConfig>): Promise<{
+  hostDataDir: string;
+  hostSecretsDir: string;
+}> {
+  let hostDataDir = resolve(config.dataDir);
+  let hostSecretsDir = resolve(config.secretsDir);
+
+  if (config.dataVolumeName) {
+    hostDataDir = await docker.getVolumeMountpoint(config.dataVolumeName);
+  }
+  if (config.secretsVolumeName) {
+    hostSecretsDir = await docker.getVolumeMountpoint(config.secretsVolumeName);
+  }
+
+  return { hostDataDir, hostSecretsDir };
+}
+
+/**
  * Build and configure the Fastify server.
  */
 export async function buildServer(): Promise<FastifyInstance> {
   const config = getConfig();
+
+  // Resolve host paths for Docker bind mounts (inspect volumes if configured)
+  const { hostDataDir, hostSecretsDir } = await resolveHostPaths(config);
 
   // Initialize database
   initDb(config.dataDir);
@@ -159,8 +184,8 @@ export async function buildServer(): Promise<FastifyInstance> {
 
       // Create container
       // Use host paths for Docker bind mounts (Docker daemon runs on host, not in container)
-      const hostWorkspacePath = resolve(getBotWorkspacePath(config.hostDataDir, bot.id));
-      const hostSecretsPath = resolve(join(config.hostSecretsDir, bot.id));
+      const hostWorkspacePath = join(hostDataDir, 'bots', bot.id);
+      const hostSecretsPath = join(hostSecretsDir, bot.id);
       const gatewayToken = randomBytes(32).toString('hex');
       const containerId = await docker.createContainer(bot.id, {
         image: config.openclawImage,

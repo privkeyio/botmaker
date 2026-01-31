@@ -219,6 +219,18 @@ export class DockerService {
       status: c.Status
     }));
   }
+
+  /**
+   * Gets the host mountpoint for a Docker volume.
+   *
+   * @param volumeName - Name of the Docker volume
+   * @returns Host path where the volume is mounted
+   */
+  async getVolumeMountpoint(volumeName: string): Promise<string> {
+    const volume = this.docker.getVolume(volumeName);
+    const info = await volume.inspect();
+    return info.Mountpoint;
+  }
 }
 
 export default DockerService;

@@ -18,10 +18,10 @@ export interface AppConfig {
   dataDir: string;
   /** Directory for secrets storage */
   secretsDir: string;
-  /** Host path for data dir (for Docker bind mounts) */
-  hostDataDir: string;
-  /** Host path for secrets dir (for Docker bind mounts) */
-  hostSecretsDir: string;
+  /** Docker volume name for data (for runtime path discovery) */
+  dataVolumeName: string | null;
+  /** Docker volume name for secrets (for runtime path discovery) */
+  secretsVolumeName: string | null;
   /** Docker image for OpenClaw bots */
   openclawImage: string;
   /** Git tag for OpenClaw (for building image if needed) */
@@ -46,15 +46,13 @@ function getEnvIntOrDefault(key: string, defaultValue: number): number {
  * Reads from environment variables with defaults.
  */
 export function getConfig(): AppConfig {
-  const dataDir = getEnvOrDefault('DATA_DIR', './data');
-  const secretsDir = getEnvOrDefault('SECRETS_DIR', './secrets');
   return {
     port: getEnvIntOrDefault('PORT', 7100),
     host: getEnvOrDefault('HOST', '0.0.0.0'),
-    dataDir,
-    secretsDir,
-    hostDataDir: getEnvOrDefault('HOST_DATA_DIR', dataDir),
-    hostSecretsDir: getEnvOrDefault('HOST_SECRETS_DIR', secretsDir),
+    dataDir: getEnvOrDefault('DATA_DIR', './data'),
+    secretsDir: getEnvOrDefault('SECRETS_DIR', './secrets'),
+    dataVolumeName: process.env.DATA_VOLUME_NAME || null,
+    secretsVolumeName: process.env.SECRETS_VOLUME_NAME || null,
     openclawImage: getEnvOrDefault('OPENCLAW_IMAGE', 'openclaw:latest'),
     openclawGitTag: getEnvOrDefault('OPENCLAW_GIT_TAG', 'main'),
     botPortStart: getEnvIntOrDefault('BOT_PORT_START', 19000),
