@@ -16,7 +16,7 @@ export function runMigrations(db: Database.Database): void {
 
   // Get current version
   const row = db.prepare('SELECT MAX(version) as version FROM migrations').get() as { version: number | null };
-  const currentVersion = row?.version ?? -1;
+  const currentVersion = row.version ?? -1;
 
   // Migration v0: Initial schema (created by createSchema, just track it)
   if (currentVersion < 0) {

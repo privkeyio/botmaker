@@ -36,8 +36,8 @@ async function main(): Promise<void> {
     process.exit(0);
   };
 
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', () => void shutdown());
+  process.on('SIGTERM', () => void shutdown());
 
   try {
     await server.listen({ port: config.port, host: config.host });
@@ -48,4 +48,4 @@ async function main(): Promise<void> {
   }
 }
 
-main();
+main().catch(console.error);

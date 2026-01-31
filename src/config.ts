@@ -31,7 +31,7 @@ export interface AppConfig {
 }
 
 function getEnvOrDefault(key: string, defaultValue: string): string {
-  return process.env[key] || defaultValue;
+  return process.env[key] ?? defaultValue;
 }
 
 function getEnvIntOrDefault(key: string, defaultValue: number): number {
@@ -51,8 +51,8 @@ export function getConfig(): AppConfig {
     host: getEnvOrDefault('HOST', '0.0.0.0'),
     dataDir: getEnvOrDefault('DATA_DIR', './data'),
     secretsDir: getEnvOrDefault('SECRETS_DIR', './secrets'),
-    dataVolumeName: process.env.DATA_VOLUME_NAME || null,
-    secretsVolumeName: process.env.SECRETS_VOLUME_NAME || null,
+    dataVolumeName: process.env.DATA_VOLUME_NAME ?? null,
+    secretsVolumeName: process.env.SECRETS_VOLUME_NAME ?? null,
     openclawImage: getEnvOrDefault('OPENCLAW_IMAGE', 'openclaw:latest'),
     openclawGitTag: getEnvOrDefault('OPENCLAW_GIT_TAG', 'main'),
     botPortStart: getEnvIntOrDefault('BOT_PORT_START', 19000),

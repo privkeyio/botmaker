@@ -264,11 +264,10 @@ export class DockerService {
       // Network stats (aggregate all interfaces)
       let networkRxBytes = 0;
       let networkTxBytes = 0;
-      if (stats.networks) {
-        for (const iface of Object.values(stats.networks)) {
-          networkRxBytes += (iface as { rx_bytes: number }).rx_bytes || 0;
-          networkTxBytes += (iface as { tx_bytes: number }).tx_bytes || 0;
-        }
+      const networks = stats.networks as Record<string, { rx_bytes: number; tx_bytes: number }> | undefined;
+      for (const iface of Object.values(networks ?? {})) {
+        networkRxBytes += (iface as { rx_bytes: number }).rx_bytes || 0;
+        networkTxBytes += (iface as { tx_bytes: number }).tx_bytes || 0;
       }
 
       return {

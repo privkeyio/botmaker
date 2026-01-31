@@ -5,7 +5,7 @@
  * Each bot gets its own directory (0700) and secret files (0600).
  */
 
-import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync, statSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** Hostname regex for validation - prevents directory traversal attacks */
@@ -16,7 +16,7 @@ const HOSTNAME_REGEX = /^[a-z0-9-]{1,64}$/;
  * Uses SECRETS_DIR environment variable if set, otherwise './secrets'.
  */
 export function getSecretsRoot(): string {
-  return process.env.SECRETS_DIR || './secrets';
+  return process.env.SECRETS_DIR ?? './secrets';
 }
 
 /**

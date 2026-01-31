@@ -4,7 +4,7 @@
  * API routes for bot management.
  */
 
-import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import Fastify, { FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
@@ -15,19 +15,17 @@ import { initDb } from './db/index.js';
 import {
   createBot,
   getBot,
-  getBotByName,
   getBotByHostname,
   listBots,
   updateBot,
   deleteBot,
   getNextBotPort,
 } from './bots/store.js';
-import { createBotWorkspace, getBotWorkspacePath, deleteBotWorkspace } from './bots/templates.js';
+import { createBotWorkspace, deleteBotWorkspace } from './bots/templates.js';
 import { writeSecret, deleteBotSecrets } from './secrets/manager.js';
 import { DockerService } from './services/DockerService.js';
 import { ReconciliationService } from './services/ReconciliationService.js';
 import { ContainerError } from './services/docker-errors.js';
-import type { BotStatus } from './types/bot.js';
 
 const docker = new DockerService();
 
@@ -38,9 +36,9 @@ interface CreateBotBody {
   hostname: string;
   emoji: string;
   avatarUrl?: string;
-  providers: Array<{ providerId: string; apiKey: string; model: string }>;
-  primaryProvider: string;
-  channels: Array<{ channelType: string; token: string }>;
+  providers?: { providerId: string; apiKey: string; model: string }[];
+  primaryProvider?: string;
+  channels?: { channelType: string; token: string }[];
   persona: {
     name: string;
     soulMarkdown: string;
@@ -99,7 +97,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   server.log.info({ report }, 'Startup reconciliation complete');
 
   // Health check
-  server.get('/health', async () => {
+  server.get('/health', () => {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
@@ -176,7 +174,7 @@ export async function buildServer(): Promise<FastifyInstance> {
     }
 
     // Use primary provider or first provider
-    const primaryProvider = body.providers.find(p => p.providerId === body.primaryProvider) || body.providers[0];
+    const primaryProvider = body.providers.find(p => p.providerId === body.primaryProvider) ?? body.providers[0];
     const primaryChannel = body.channels[0];
 
     // Get next available port
@@ -270,7 +268,7 @@ export async function buildServer(): Promise<FastifyInstance> {
       reply.code(201);
       return updatedBot;
     } catch (err) {
-      try { await docker.removeContainer(bot.hostname); } catch {}
+      try { await docker.removeContainer(bot.hostname); } catch { /* ignore cleanup errors */ }
       deleteBotWorkspace(config.dataDir, bot.hostname);
       deleteBotSecrets(bot.hostname);
       deleteBot(bot.id);

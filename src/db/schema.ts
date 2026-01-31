@@ -35,7 +35,7 @@ export function createSchema(db: Database.Database): void {
  */
 function migrateAddHostnameColumn(db: Database.Database): void {
   // Check if hostname column exists using PRAGMA table_info
-  const columns = db.prepare('PRAGMA table_info(bots)').all() as Array<{ name: string }>;
+  const columns = db.prepare('PRAGMA table_info(bots)').all() as { name: string }[];
   const hasHostname = columns.some(col => col.name === 'hostname');
 
   if (!hasHostname) {
