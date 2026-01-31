@@ -16,6 +16,9 @@ services:
       - PORT=7100
       - DATA_DIR=/app/data
       - SECRETS_DIR=/app/secrets
+      # Host paths for Docker bind mounts (bot containers created from BotMaker)
+      - HOST_DATA_DIR=/var/lib/docker/volumes/botmaker_botmaker-data/_data
+      - HOST_SECRETS_DIR=/var/lib/docker/volumes/botmaker_botmaker-secrets/_data
       - OPENCLAW_IMAGE=openclaw:latest
     restart: unless-stopped
     healthcheck:

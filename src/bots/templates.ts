@@ -4,7 +4,7 @@
  * Generate configuration files for OpenClaw bot workspaces.
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
 
 export interface BotPersona {
@@ -30,38 +30,22 @@ export interface BotWorkspaceConfig {
 
 /**
  * Generate openclaw.json configuration.
+ * Follows OpenClaw's expected config structure for gateway mode.
  */
 function generateOpenclawConfig(config: BotWorkspaceConfig): object {
-  const channels: Record<string, object> = {};
-
-  if (config.channel.type === 'telegram') {
-    channels.telegram = {
-      enabled: true,
-      token_env: 'TELEGRAM_TOKEN',
-    };
-  } else if (config.channel.type === 'discord') {
-    channels.discord = {
-      enabled: true,
-      token_env: 'DISCORD_TOKEN',
-    };
-  }
-
   return {
-    name: config.botName,
-    version: '1.0.0',
-    ai: {
-      provider: config.aiProvider,
-      model: config.model,
-      api_key_env: 'AI_API_KEY',
-    },
-    channels,
-    server: {
+    gateway: {
+      mode: 'local',
       port: config.port,
-      host: '0.0.0.0',
+      bind: 'lan',
+      auth: {
+        mode: 'token',
+      },
     },
-    paths: {
-      workspace: './workspace',
-      sessions: './sessions',
+    channels: {
+      [config.channel.type]: {
+        enabled: true,
+      },
     },
   };
 }
@@ -133,31 +117,40 @@ ${persona.description}
 /**
  * Create a complete bot workspace directory structure.
  *
+ * OpenClaw expects:
+ * - openclaw.json at root of OPENCLAW_STATE_DIR
+ * - workspace/ subdirectory with SOUL.md, IDENTITY.md, AGENTS.md
+ *
  * @param dataDir - Root data directory
  * @param config - Bot workspace configuration
  */
 export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig): void {
   const botDir = join(dataDir, 'bots', config.botId);
-  const configDir = join(botDir, 'config');
   const workspaceDir = join(botDir, 'workspace');
-  const sessionsDir = join(botDir, 'sessions');
 
-  // Create directories
-  mkdirSync(configDir, { recursive: true });
-  mkdirSync(workspaceDir, { recursive: true });
-  mkdirSync(sessionsDir, { recursive: true });
+  // Create directories with permissions for bot container (runs as uid 1000)
+  mkdirSync(botDir, { recursive: true, mode: 0o777 });
+  mkdirSync(workspaceDir, { recursive: true, mode: 0o777 });
+  // Ensure parent dir has correct permissions (recursive: true doesn't set mode on existing dirs)
+  chmodSync(botDir, 0o777);
+  chmodSync(workspaceDir, 0o777);
 
-  // Write openclaw.json
+  // Write openclaw.json at root of bot directory (OPENCLAW_STATE_DIR)
   const openclawConfig = generateOpenclawConfig(config);
-  writeFileSync(
-    join(configDir, 'openclaw.json'),
-    JSON.stringify(openclawConfig, null, 2)
-  );
+  const configPath = join(botDir, 'openclaw.json');
+  writeFileSync(configPath, JSON.stringify(openclawConfig, null, 2));
+  chmodSync(configPath, 0o666);
 
   // Write workspace files
-  writeFileSync(join(workspaceDir, 'SOUL.md'), generateSoulMd(config.persona));
-  writeFileSync(join(workspaceDir, 'IDENTITY.md'), generateIdentityMd(config.persona, config.botName));
-  writeFileSync(join(workspaceDir, 'AGENTS.md'), generateAgentsMd(config.persona));
+  const soulPath = join(workspaceDir, 'SOUL.md');
+  const identityPath = join(workspaceDir, 'IDENTITY.md');
+  const agentsPath = join(workspaceDir, 'AGENTS.md');
+  writeFileSync(soulPath, generateSoulMd(config.persona));
+  writeFileSync(identityPath, generateIdentityMd(config.persona, config.botName));
+  writeFileSync(agentsPath, generateAgentsMd(config.persona));
+  chmodSync(soulPath, 0o666);
+  chmodSync(identityPath, 0o666);
+  chmodSync(agentsPath, 0o666);
 }
 
 /**

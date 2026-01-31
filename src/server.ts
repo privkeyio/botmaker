@@ -8,6 +8,7 @@ import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import fastifyStatic from '@fastify/static';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
 
 import { getConfig } from './config.js';
 import { initDb } from './db/index.js';
@@ -157,7 +158,10 @@ export async function buildServer(): Promise<FastifyInstance> {
       });
 
       // Create container
-      const workspacePath = resolve(getBotWorkspacePath(config.dataDir, bot.id));
+      // Use host paths for Docker bind mounts (Docker daemon runs on host, not in container)
+      const hostWorkspacePath = resolve(getBotWorkspacePath(config.hostDataDir, bot.id));
+      const hostSecretsPath = resolve(join(config.hostSecretsDir, bot.id));
+      const gatewayToken = randomBytes(32).toString('hex');
       const containerId = await docker.createContainer(bot.id, {
         image: config.openclawImage,
         environment: [
@@ -167,6 +171,10 @@ export async function buildServer(): Promise<FastifyInstance> {
           `AI_MODEL=${body.model}`,
           `PORT=${port}`,
         ],
+        port,
+        hostWorkspacePath,
+        hostSecretsPath,
+        gatewayToken,
       });
 
       // Update bot with container ID

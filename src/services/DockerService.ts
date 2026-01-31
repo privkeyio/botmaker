@@ -8,8 +8,6 @@
 import Docker from 'dockerode';
 import type { ContainerStatus, ContainerInfo, ContainerConfig } from '../types/container.js';
 import { wrapDockerError } from './docker-errors.js';
-import { getSecretsRoot } from '../secrets/manager.js';
-import { join, resolve } from 'node:path';
 
 /** Label used to identify BotMaker-managed containers */
 const LABEL_MANAGED = 'botmaker.managed';
@@ -36,19 +34,32 @@ export class DockerService {
    */
   async createContainer(botId: string, config: ContainerConfig): Promise<string> {
     const containerName = `botmaker-${botId}`;
-    const secretsPath = resolve(join(getSecretsRoot(), botId));
 
     try {
       const container = await this.docker.createContainer({
         name: containerName,
         Image: config.image,
-        Env: config.environment,
+        Cmd: ['node', 'dist/index.js', 'gateway'],
+        Env: [
+          ...config.environment,
+          `OPENCLAW_STATE_DIR=/app/botdata`,
+          `OPENCLAW_GATEWAY_TOKEN=${config.gatewayToken}`,
+        ],
+        ExposedPorts: {
+          [`${config.port}/tcp`]: {}
+        },
         Labels: {
           [LABEL_MANAGED]: 'true',
           [LABEL_BOT_ID]: botId
         },
         HostConfig: {
-          Binds: [`${secretsPath}:/run/secrets:ro`],
+          Binds: [
+            `${config.hostSecretsPath}:/run/secrets:ro`,
+            `${config.hostWorkspacePath}:/app/botdata:rw`
+          ],
+          PortBindings: {
+            [`${config.port}/tcp`]: [{ HostPort: String(config.port) }]
+          },
           RestartPolicy: {
             Name: 'unless-stopped'
           },

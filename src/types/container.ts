@@ -37,4 +37,10 @@ export interface ContainerInfo {
 export interface ContainerConfig {
   image: string;
   environment: string[];
+  port: number;
+  /** Host path for workspace bind mount (Docker daemon perspective) */
+  hostWorkspacePath: string;
+  /** Host path for secrets bind mount (Docker daemon perspective) */
+  hostSecretsPath: string;
+  gatewayToken: string;
 }
