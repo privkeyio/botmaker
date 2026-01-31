@@ -41,6 +41,9 @@ function generateOpenclawConfig(config: BotWorkspaceConfig): object {
       auth: {
         mode: 'token',
       },
+      controlUi: {
+        allowInsecureAuth: true,
+      },
     },
     channels: {
       [config.channel.type]: {
