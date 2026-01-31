@@ -1,0 +1,100 @@
+/* TokenDisplay - Industrial token reveal/copy component */
+
+.token-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.token-display-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.token-display-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.token-display-row:hover {
+  border-color: var(--border-color-strong);
+}
+
+.token-display-reveal,
+.token-display-copy {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.token-display-reveal {
+  border-right: 1px solid var(--border-color-subtle);
+}
+
+.token-display-copy {
+  border-left: 1px solid var(--border-color-subtle);
+}
+
+.token-display-reveal:hover,
+.token-display-copy:hover {
+  background: var(--bg-panel);
+  color: var(--accent-primary);
+}
+
+.token-display-copy.copied {
+  background: var(--accent-success-glow);
+  color: var(--accent-success);
+}
+
+.token-display-icon,
+.token-display-copy-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.token-display-value {
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+/* Glow effect on interaction */
+.token-display-row:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary-glow);
+}
+
+/* Pulse animation on copy */
+@keyframes token-copied-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-success-glow); }
+  50% { box-shadow: 0 0 0 4px var(--accent-success-glow); }
+  100% { box-shadow: 0 0 0 0 var(--accent-success-glow); }
+}
+
+.token-display-copy.copied {
+  animation: token-copied-pulse 0.4s ease-out;
+}

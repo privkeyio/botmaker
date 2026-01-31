@@ -14,6 +14,7 @@ export interface CreateBotInput {
   model: string;
   channel_type: string;
   port: number;
+  gateway_token: string;
 }
 
 export interface UpdateBotInput {
@@ -23,6 +24,7 @@ export interface UpdateBotInput {
   channel_type?: string;
   container_id?: string | null;
   port?: number | null;
+  gateway_token?: string | null;
   status?: BotStatus;
 }
 
@@ -38,11 +40,11 @@ export function createBot(input: CreateBotInput): Bot {
   const id = uuidv4();
 
   const stmt = db.prepare(`
-    INSERT INTO bots (id, name, ai_provider, model, channel_type, port, status, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO bots (id, name, ai_provider, model, channel_type, port, gateway_token, status, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  stmt.run(id, input.name, input.ai_provider, input.model, input.channel_type, input.port, 'created', now, now);
+  stmt.run(id, input.name, input.ai_provider, input.model, input.channel_type, input.port, input.gateway_token, 'created', now, now);
 
   return {
     id,
@@ -52,6 +54,7 @@ export function createBot(input: CreateBotInput): Bot {
     channel_type: input.channel_type,
     container_id: null,
     port: input.port,
+    gateway_token: input.gateway_token,
     status: 'created',
     created_at: now,
     updated_at: now,
@@ -133,6 +136,10 @@ export function updateBot(id: string, input: UpdateBotInput): Bot | null {
   if (input.port !== undefined) {
     updates.push('port = ?');
     values.push(input.port);
+  }
+  if (input.gateway_token !== undefined) {
+    updates.push('gateway_token = ?');
+    values.push(input.gateway_token);
   }
   if (input.status !== undefined) {
     updates.push('status = ?');

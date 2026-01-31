@@ -4,6 +4,7 @@ import { StatusLight } from '../ui/StatusLight';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Panel } from '../ui/Panel';
+import { TokenDisplay } from '../ui/TokenDisplay';
 import './BotCard.css';
 
 interface BotCardProps {
@@ -87,6 +88,12 @@ export function BotCard({ bot, onStart, onStop, onDelete, loading }: BotCardProp
           </div>
         )}
       </div>
+
+      {bot.gateway_token && (
+        <div className="bot-card-token">
+          <TokenDisplay token={bot.gateway_token} />
+        </div>
+      )}
 
       <div className="bot-card-actions">
         {isRunning ? (

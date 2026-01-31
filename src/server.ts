@@ -156,13 +156,17 @@ export async function buildServer(): Promise<FastifyInstance> {
     // Get next available port before creating bot record
     const port = getNextBotPort(config.botPortStart);
 
-    // Create bot record with port
+    // Generate gateway token for OpenClaw authentication
+    const gatewayToken = randomBytes(32).toString('hex');
+
+    // Create bot record with port and gateway token
     const bot = createBot({
       name: body.name,
       ai_provider: body.ai_provider,
       model: body.model,
       channel_type: body.channel_type,
       port,
+      gateway_token: gatewayToken,
     });
 
     try {
@@ -194,7 +198,6 @@ export async function buildServer(): Promise<FastifyInstance> {
       // Use host paths for Docker bind mounts (Docker daemon runs on host, not in container)
       const hostWorkspacePath = join(hostDataDir, 'bots', bot.id);
       const hostSecretsPath = join(hostSecretsDir, bot.id);
-      const gatewayToken = randomBytes(32).toString('hex');
       const containerId = await docker.createContainer(bot.id, {
         image: config.openclawImage,
         environment: [

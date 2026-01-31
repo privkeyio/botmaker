@@ -181,6 +181,11 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   const authProfiles = generateAuthProfiles(config.aiProvider, config.apiKey);
   writeFileSync(authProfilesPath, JSON.stringify(authProfiles, null, 2));
   chmodSync(authProfilesPath, 0o666);
+
+  // Pre-create sessions directory for OpenClaw runtime use
+  const sessionsDir = join(botDir, 'agents', 'main', 'sessions');
+  mkdirSync(sessionsDir, { recursive: true, mode: 0o777 });
+  chmodSync(sessionsDir, 0o777);
 }
 
 /**

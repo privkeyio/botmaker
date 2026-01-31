@@ -17,6 +17,7 @@ export interface Bot {
   channel_type: string;
   container_id: string | null;
   port: number | null;
+  gateway_token: string | null;
   status: BotStatus;
   created_at: string;
   updated_at: string;

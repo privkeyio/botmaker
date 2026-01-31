@@ -34,4 +34,13 @@ export function runMigrations(db: Database.Database): void {
       new Date().toISOString()
     );
   }
+
+  // Migration v2: Add gateway_token column for OpenClaw authentication
+  if (currentVersion < 2) {
+    db.exec('ALTER TABLE bots ADD COLUMN gateway_token TEXT');
+    db.prepare('INSERT INTO migrations (version, applied_at) VALUES (?, ?)').run(
+      2,
+      new Date().toISOString()
+    );
+  }
 }
