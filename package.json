@@ -2,6 +2,25 @@
   "name": "botmaker",
   "version": "0.1.0",
   "description": "Web UI for creating and managing OpenClaw bots",
+  "author": "Jeff Garzik",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgarzik/botmaker.git"
+  },
+  "homepage": "https://github.com/jgarzik/botmaker#readme",
+  "bugs": {
+    "url": "https://github.com/jgarzik/botmaker/issues"
+  },
+  "keywords": [
+    "chatbot",
+    "ai",
+    "docker",
+    "telegram",
+    "discord",
+    "openai",
+    "anthropic"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

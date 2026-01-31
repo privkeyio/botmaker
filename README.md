@@ -1,6 +1,20 @@
 # BotMaker
 
-Web UI for creating and managing OpenClaw bots in isolated Docker containers.
+Web UI for managing OpenClaw AI chatbots in Docker containers.
+
+## Features
+
+- **Multi-AI Provider Support** - OpenAI, Anthropic, Google Gemini, Venice
+- **Multi-Channel Deployment** - Telegram, Discord
+- **Container Isolation** - Each bot runs in its own Docker container
+- **Dashboard** - Creation wizard, monitoring, diagnostics
+- **Secrets Management** - Per-bot credential isolation
+
+## Requirements
+
+- Node.js 20+
+- Docker
+- OpenClaw Docker image (`openclaw:latest` or custom)
 
 ## Quick Start
 
@@ -28,7 +42,7 @@ npm run build:all
 npm start
 ```
 
-### Docker
+### Docker Compose
 
 ```bash
 # Build and run
@@ -41,7 +55,7 @@ docker compose logs -f
 docker compose down
 ```
 
-## Environment Variables
+## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -53,24 +67,27 @@ docker compose down
 | `OPENCLAW_GIT_TAG` | main | Git tag for building image |
 | `BOT_PORT_START` | 19000 | Starting port for bot containers |
 
-## API
+## API Reference
+
+### Bot Management
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | /health | Health check |
-| GET | /api/bots | List all bots |
-| GET | /api/bots/:id | Get bot details |
-| POST | /api/bots | Create bot |
-| DELETE | /api/bots/:id | Delete bot |
-| POST | /api/bots/:id/start | Start bot container |
-| POST | /api/bots/:id/stop | Stop bot container |
+| GET | `/api/bots` | List all bots with container status |
+| GET | `/api/bots/:id` | Get bot details |
+| POST | `/api/bots` | Create bot |
+| DELETE | `/api/bots/:id` | Delete bot and cleanup resources |
+| POST | `/api/bots/:id/start` | Start bot container |
+| POST | `/api/bots/:id/stop` | Stop bot container |
 
-## Testing
+### Monitoring & Admin
 
-```bash
-# Run E2E tests (requires running server)
-./scripts/test-e2e.sh
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Health check |
+| GET | `/api/stats` | Container resource stats (CPU, memory) |
+| GET | `/api/admin/orphans` | Preview orphaned resources |
+| POST | `/api/admin/cleanup` | Clean orphaned containers/workspaces/secrets |
 
 ## Architecture
 
@@ -87,3 +104,40 @@ botmaker/
 ├── secrets/              # Per-bot secret files
 └── scripts/              # Test and utility scripts
 ```
+
+### Components
+
+- **Backend**: Fastify server with SQLite for bot metadata, Dockerode for container orchestration
+- **Frontend**: React SPA with Vite, served statically in production
+- **Secrets**: File-based per-bot credential isolation, mounted read-only into containers
+
+## Development
+
+### Project Structure
+
+- `src/` - TypeScript backend source
+- `dashboard/` - React frontend (separate npm project)
+- `scripts/` - Test and utility scripts
+
+### Running Tests
+
+```bash
+# Run E2E tests (requires running server)
+./scripts/test-e2e.sh
+```
+
+### Code Style
+
+- ESLint with TypeScript strict mode
+- Run `npm run lint` to check, `npm run lint:fix` to auto-fix
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make changes following the code style
+4. Submit a pull request
+
+## License
+
+MIT License
