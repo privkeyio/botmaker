@@ -1,0 +1,80 @@
+/* StatusLight - LED indicator component */
+
+.status-light-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.status-light {
+  display: block;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Sizes */
+.status-light-sm .status-light {
+  width: var(--led-sm);
+  height: var(--led-sm);
+}
+
+.status-light-md .status-light {
+  width: var(--led-md);
+  height: var(--led-md);
+}
+
+.status-light-lg .status-light {
+  width: var(--led-lg);
+  height: var(--led-lg);
+}
+
+/* Status colors and animations */
+.status-light--running {
+  background: var(--status-running);
+  --glow-color: var(--status-running-glow);
+  box-shadow: 0 0 4px var(--status-running-glow),
+              0 0 8px var(--status-running-glow);
+  animation: led-pulse 2s ease-in-out infinite;
+}
+
+.status-light--stopped {
+  background: var(--status-stopped);
+  --glow-color: var(--status-stopped-glow);
+  box-shadow: 0 0 2px var(--status-stopped-glow);
+}
+
+.status-light--error {
+  background: var(--status-error);
+  --glow-color: var(--status-error-glow);
+  box-shadow: 0 0 4px var(--status-error-glow),
+              0 0 8px var(--status-error-glow);
+  animation: led-blink 1s ease-in-out infinite;
+}
+
+.status-light--created {
+  background: var(--status-created);
+  --glow-color: var(--status-created-glow);
+  box-shadow: 0 0 4px var(--status-created-glow),
+              0 0 8px var(--status-created-glow);
+}
+
+/* Label styling */
+.status-light-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.status-light--running + .status-light-label {
+  color: var(--status-running);
+}
+
+.status-light--error + .status-light-label {
+  color: var(--status-error);
+}
+
+.status-light--created + .status-light-label {
+  color: var(--status-created);
+}

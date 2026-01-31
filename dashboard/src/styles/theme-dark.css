@@ -1,0 +1,53 @@
+/* Industrial Control Panel - Dark Theme */
+
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-primary: #0a0c10;
+  --bg-secondary: #0d1017;
+  --bg-panel: #12151c;
+  --bg-panel-raised: #181c24;
+  --bg-input: #0d1017;
+
+  /* Borders */
+  --border-color: #2a3040;
+  --border-color-strong: #3d4555;
+  --border-color-subtle: #1e242e;
+
+  /* Text */
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a9;
+  --text-muted: #6b7280;
+  --text-inverse: #0a0c10;
+
+  /* Accent colors */
+  --accent-primary: #00d4ff;
+  --accent-primary-hover: #33ddff;
+  --accent-primary-glow: rgba(0, 212, 255, 0.3);
+
+  --accent-success: #00ff88;
+  --accent-success-hover: #33ff9f;
+  --accent-success-glow: rgba(0, 255, 136, 0.2);
+
+  --accent-warning: #ffaa00;
+  --accent-warning-hover: #ffbb33;
+  --accent-warning-glow: rgba(255, 170, 0, 0.2);
+
+  --accent-danger: #ff3b3b;
+  --accent-danger-hover: #ff5c5c;
+  --accent-danger-glow: rgba(255, 59, 59, 0.2);
+
+  /* Panel effects */
+  --panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --panel-inset-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  --panel-border-glow: rgba(0, 212, 255, 0.1);
+
+  /* Button 3D effects */
+  --btn-shadow: 0 2px 0 #0a0c10, 0 4px 8px rgba(0, 0, 0, 0.3);
+  --btn-shadow-pressed: 0 1px 0 #0a0c10;
+  --btn-highlight: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+
+  /* Gauge colors */
+  --gauge-track: #1e242e;
+  --gauge-tick: #3d4555;
+  --gauge-label: #9aa0a9;
+}

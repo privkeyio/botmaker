@@ -318,6 +318,23 @@ export async function buildServer(): Promise<FastifyInstance> {
     return { success: true, ...cleanupReport };
   });
 
+  // Get orphan preview - shows what would be cleaned up without actually cleaning
+  server.get('/api/admin/orphans', async () => {
+    const report = await reconciliation.reconcileOnStartup();
+    return {
+      orphanedContainers: report.orphanedContainers,
+      orphanedWorkspaces: report.orphanedWorkspaces,
+      orphanedSecrets: report.orphanedSecrets,
+      total: report.orphanedContainers.length + report.orphanedWorkspaces.length + report.orphanedSecrets.length,
+    };
+  });
+
+  // Get container stats for all running bots
+  server.get('/api/stats', async () => {
+    const stats = await docker.getAllContainerStats();
+    return { stats };
+  });
+
   // Serve static dashboard files (if built)
   const dashboardDist = join(process.cwd(), 'dashboard', 'dist');
   if (existsSync(dashboardDist)) {

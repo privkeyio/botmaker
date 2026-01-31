@@ -1,0 +1,52 @@
+/* DiagnosticsTab - Diagnostics view layout */
+
+.diagnostics-tab {
+  animation: panel-fade-in 0.3s ease-out;
+}
+
+.diagnostics-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  background: var(--accent-danger-glow);
+  border: 1px solid var(--accent-danger);
+  border-radius: var(--radius-md);
+  color: var(--accent-danger);
+  font-size: 14px;
+}
+
+.diagnostics-error svg {
+  flex-shrink: 0;
+}
+
+.diagnostics-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.diagnostics-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.diagnostics-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .diagnostics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .diagnostics-sidebar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
+  }
+}

@@ -1,0 +1,190 @@
+/* CreateWizard - Industrial wizard styling */
+
+.wizard-step-content {
+  margin-top: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Form elements */
+.wizard-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.wizard-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.wizard-input,
+.wizard-select,
+.wizard-textarea {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-input);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+}
+
+.wizard-input:focus,
+.wizard-select:focus,
+.wizard-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-primary-glow);
+}
+
+.wizard-input::placeholder,
+.wizard-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.wizard-select {
+  cursor: pointer;
+}
+
+.wizard-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.wizard-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Channel selector */
+.wizard-channel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.wizard-channel-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--bg-input);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.wizard-channel-option:hover {
+  border-color: var(--border-color-strong);
+  background: var(--bg-panel);
+}
+
+.wizard-channel-option--selected {
+  border-color: var(--accent-primary);
+  background: var(--accent-primary-glow);
+}
+
+.wizard-channel-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-panel);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.wizard-channel-option--selected .wizard-channel-icon {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+}
+
+.wizard-channel-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.wizard-channel-option--selected .wizard-channel-name {
+  color: var(--accent-primary);
+}
+
+/* Review sections */
+.wizard-review-section {
+  margin-bottom: var(--space-md);
+}
+
+.wizard-review-header {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.wizard-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.wizard-review-grid--full {
+  grid-template-columns: 1fr;
+}
+
+.wizard-review-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wizard-review-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.wizard-review-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.wizard-review-value--wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Error message */
+.wizard-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin-top: var(--space-md);
+  background: var(--accent-danger-glow);
+  border: 1px solid var(--accent-danger);
+  border-radius: var(--radius-sm);
+  color: var(--accent-danger);
+  font-size: 13px;
+}
+
+.wizard-error svg {
+  flex-shrink: 0;
+}

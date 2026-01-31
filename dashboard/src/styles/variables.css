@@ -1,0 +1,52 @@
+/* Industrial Control Panel Design System */
+
+:root {
+  /* Typography */
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Sizing */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* LED sizes */
+  --led-sm: 8px;
+  --led-md: 12px;
+  --led-lg: 16px;
+
+  /* Panel styling */
+  --panel-border-width: 2px;
+  --panel-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+
+  /* Z-index layers */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-modal-backdrop: 100;
+  --z-modal: 110;
+  --z-tooltip: 200;
+}
+
+/* Status LED colors - used across themes */
+:root {
+  --status-running: #00ff88;
+  --status-running-glow: rgba(0, 255, 136, 0.6);
+  --status-stopped: #6b7280;
+  --status-stopped-glow: rgba(107, 114, 128, 0.4);
+  --status-error: #ff3b3b;
+  --status-error-glow: rgba(255, 59, 59, 0.6);
+  --status-created: #00d4ff;
+  --status-created-glow: rgba(0, 212, 255, 0.6);
+}

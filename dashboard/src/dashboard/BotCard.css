@@ -1,0 +1,86 @@
+/* BotCard - Industrial bot card component */
+
+.bot-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  animation: panel-fade-in 0.3s ease-out;
+}
+
+/* Header */
+.bot-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.bot-card-status {
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.bot-card-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.bot-card-title h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bot-card-model {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.bot-card-channel {
+  flex-shrink: 0;
+}
+
+/* Details grid */
+.bot-card-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border-color-subtle);
+  border-bottom: 1px solid var(--border-color-subtle);
+}
+
+.bot-card-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bot-card-detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.bot-card-detail-value {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* Actions */
+.bot-card-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.bot-card-actions .btn {
+  flex: 1;
+}

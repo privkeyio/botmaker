@@ -1,0 +1,43 @@
+/* HealthStatus - API health indicator */
+
+.health-status {
+  margin-bottom: var(--space-lg);
+}
+
+.health-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.health-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.health-status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.health-status-label {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.health-status-latency {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.health-status-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-color-subtle);
+}

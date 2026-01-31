@@ -44,3 +44,16 @@ export interface ContainerConfig {
   hostSecretsPath: string;
   gatewayToken: string;
 }
+
+/** Container resource statistics */
+export interface ContainerStats {
+  botId: string;
+  name: string;
+  cpuPercent: number;
+  memoryUsage: number;
+  memoryLimit: number;
+  memoryPercent: number;
+  networkRxBytes: number;
+  networkTxBytes: number;
+  timestamp: string;
+}

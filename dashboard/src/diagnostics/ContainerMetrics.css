@@ -1,0 +1,104 @@
+/* ContainerMetrics - Per-bot metrics table */
+
+.container-metrics {
+  margin-bottom: var(--space-lg);
+}
+
+.container-metrics-empty {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.container-metrics-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.container-metrics-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.container-metrics-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-color-subtle);
+  align-items: center;
+}
+
+.container-metrics-row:last-child {
+  border-bottom: none;
+}
+
+.container-metrics-row:hover {
+  background: var(--bg-panel-raised);
+}
+
+.container-metrics-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.container-metrics-id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.container-metrics-gauge {
+  display: flex;
+  justify-content: center;
+}
+
+.container-metrics-network {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.container-metrics-network-in,
+.container-metrics-network-out {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.container-metrics-network-in {
+  color: var(--accent-success);
+}
+
+.container-metrics-network-out {
+  color: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container-metrics-header,
+  .container-metrics-row {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .container-metrics-header span:nth-child(3),
+  .container-metrics-header span:nth-child(4),
+  .container-metrics-row > div:nth-child(3),
+  .container-metrics-row > div:nth-child(4) {
+    display: none;
+  }
+}

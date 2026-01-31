@@ -6,7 +6,7 @@
  */
 
 import Docker from 'dockerode';
-import type { ContainerStatus, ContainerInfo, ContainerConfig } from '../types/container.js';
+import type { ContainerStatus, ContainerInfo, ContainerConfig, ContainerStats } from '../types/container.js';
 import { wrapDockerError } from './docker-errors.js';
 
 /** Label used to identify BotMaker-managed containers */
@@ -230,6 +230,85 @@ export class DockerService {
     const volume = this.docker.getVolume(volumeName);
     const info = await volume.inspect();
     return info.Mountpoint;
+  }
+
+  /**
+   * Gets resource statistics for a container.
+   *
+   * @param botId - UUID of the bot
+   * @returns Container stats or null if not found/not running
+   */
+  async getContainerStats(botId: string): Promise<ContainerStats | null> {
+    const containerName = `botmaker-${botId}`;
+
+    try {
+      const container = this.docker.getContainer(containerName);
+      const stats = await container.stats({ stream: false });
+
+      // Calculate CPU percentage
+      const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+      const systemDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+      const cpuCount = stats.cpu_stats.online_cpus || 1;
+      const cpuPercent = systemDelta > 0 ? (cpuDelta / systemDelta) * cpuCount * 100 : 0;
+
+      // Memory stats
+      const memoryUsage = stats.memory_stats.usage || 0;
+      const memoryLimit = stats.memory_stats.limit || 0;
+      const memoryPercent = memoryLimit > 0 ? (memoryUsage / memoryLimit) * 100 : 0;
+
+      // Network stats (aggregate all interfaces)
+      let networkRxBytes = 0;
+      let networkTxBytes = 0;
+      if (stats.networks) {
+        for (const iface of Object.values(stats.networks)) {
+          networkRxBytes += (iface as { rx_bytes: number }).rx_bytes || 0;
+          networkTxBytes += (iface as { tx_bytes: number }).tx_bytes || 0;
+        }
+      }
+
+      return {
+        botId,
+        name: containerName,
+        cpuPercent: Math.round(cpuPercent * 100) / 100,
+        memoryUsage,
+        memoryLimit,
+        memoryPercent: Math.round(memoryPercent * 100) / 100,
+        networkRxBytes,
+        networkTxBytes,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (err) {
+      const dockerErr = err as { statusCode?: number };
+
+      // 404 = container doesn't exist, 409 = container not running
+      if (dockerErr.statusCode === 404 || dockerErr.statusCode === 409) {
+        return null;
+      }
+
+      throw wrapDockerError(err, botId);
+    }
+  }
+
+  /**
+   * Gets resource statistics for all running BotMaker containers.
+   *
+   * @returns Array of container stats
+   */
+  async getAllContainerStats(): Promise<ContainerStats[]> {
+    const containers = await this.listManagedContainers();
+    const runningContainers = containers.filter(c => c.state === 'running');
+
+    const stats = await Promise.all(
+      runningContainers.map(async (container) => {
+        try {
+          return await this.getContainerStats(container.botId);
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return stats.filter((s): s is ContainerStats => s !== null);
   }
 }
 

@@ -1,0 +1,125 @@
+/* Switch - Industrial toggle switch */
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: var(--panel-inset-shadow);
+  transition: all var(--transition-fast);
+}
+
+/* Sizes */
+.switch--sm .switch-track {
+  width: 36px;
+  height: 20px;
+}
+
+.switch--md .switch-track {
+  width: 48px;
+  height: 26px;
+}
+
+/* Thumb */
+.switch-thumb {
+  position: absolute;
+  background: var(--border-color-strong);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.switch--sm .switch-thumb {
+  width: 14px;
+  height: 14px;
+  left: 2px;
+}
+
+.switch--md .switch-thumb {
+  width: 18px;
+  height: 18px;
+  left: 3px;
+}
+
+/* Indicators */
+.switch-indicator {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.switch--sm .switch-indicator {
+  font-size: 7px;
+}
+
+.switch-indicator--on {
+  position: absolute;
+  left: 6px;
+}
+
+.switch-indicator--off {
+  position: absolute;
+  right: 6px;
+}
+
+.switch--sm .switch-indicator--on { left: 4px; }
+.switch--sm .switch-indicator--off { right: 4px; }
+
+/* Checked state */
+.switch-input:checked + .switch-track {
+  background: var(--accent-primary-glow);
+  border-color: var(--accent-primary);
+}
+
+.switch-input:checked + .switch-track .switch-thumb {
+  background: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary-glow);
+}
+
+.switch--sm .switch-input:checked + .switch-track .switch-thumb {
+  transform: translateX(16px);
+}
+
+.switch--md .switch-input:checked + .switch-track .switch-thumb {
+  transform: translateX(21px);
+}
+
+.switch-input:checked + .switch-track .switch-indicator--on {
+  color: var(--accent-primary);
+}
+
+/* Focus state */
+.switch-input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Label */
+.switch-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}

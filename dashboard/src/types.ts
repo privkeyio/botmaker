@@ -16,6 +16,7 @@ export interface Bot {
   model: string;
   channel_type: string;
   container_id: string | null;
+  port: number | null;
   status: BotStatus;
   created_at: string;
   updated_at: string;
@@ -34,4 +35,30 @@ export interface CreateBotInput {
     identity: string;
     description: string;
   };
+}
+
+export interface ContainerStats {
+  botId: string;
+  name: string;
+  cpuPercent: number;
+  memoryUsage: number;
+  memoryLimit: number;
+  memoryPercent: number;
+  networkRxBytes: number;
+  networkTxBytes: number;
+  timestamp: string;
+}
+
+export interface OrphanReport {
+  orphanedContainers: string[];
+  orphanedWorkspaces: string[];
+  orphanedSecrets: string[];
+  total: number;
+}
+
+export interface CleanupReport {
+  success: boolean;
+  containersRemoved: number;
+  workspacesRemoved: number;
+  secretsRemoved: number;
 }

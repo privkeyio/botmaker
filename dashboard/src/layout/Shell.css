@@ -1,0 +1,22 @@
+/* Shell - Main application container */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell-main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .shell-main {
+    padding: var(--space-md);
+  }
+}

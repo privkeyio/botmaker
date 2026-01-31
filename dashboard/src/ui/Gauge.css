@@ -1,0 +1,108 @@
+/* Gauge - Industrial circular gauge */
+
+.gauge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Sizes */
+.gauge--sm {
+  width: 80px;
+}
+
+.gauge--md {
+  width: 120px;
+}
+
+.gauge--lg {
+  width: 160px;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Track */
+.gauge-track {
+  stroke: var(--gauge-track);
+}
+
+/* Ticks */
+.gauge-tick {
+  stroke: var(--gauge-tick);
+}
+
+/* Value arc */
+.gauge-value {
+  stroke: var(--accent-success);
+  transition: stroke-dashoffset 0.5s ease-out, stroke 0.3s ease;
+  filter: drop-shadow(0 0 4px var(--accent-success-glow));
+}
+
+/* Color states */
+.gauge--warning .gauge-value {
+  stroke: var(--accent-warning);
+  filter: drop-shadow(0 0 4px var(--accent-warning-glow));
+}
+
+.gauge--danger .gauge-value {
+  stroke: var(--accent-danger);
+  filter: drop-shadow(0 0 4px var(--accent-danger-glow));
+}
+
+/* Center text */
+.gauge-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.gauge-value-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.gauge--sm .gauge-value-text {
+  font-size: 16px;
+}
+
+.gauge--md .gauge-value-text {
+  font-size: 24px;
+}
+
+.gauge--lg .gauge-value-text {
+  font-size: 32px;
+}
+
+.gauge-unit {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.gauge--md .gauge-unit,
+.gauge--lg .gauge-unit {
+  font-size: 11px;
+}
+
+/* Label */
+.gauge-label {
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}

@@ -1,4 +1,4 @@
-import type { Bot, CreateBotInput } from './types';
+import type { Bot, CreateBotInput, ContainerStats, OrphanReport, CleanupReport } from './types';
 
 const API_BASE = '/api';
 
@@ -49,4 +49,27 @@ export async function stopBot(id: string): Promise<void> {
     method: 'POST',
   });
   await handleResponse<{ success: boolean }>(response);
+}
+
+export async function fetchContainerStats(): Promise<ContainerStats[]> {
+  const response = await fetch(`${API_BASE}/stats`);
+  const data = await handleResponse<{ stats: ContainerStats[] }>(response);
+  return data.stats;
+}
+
+export async function fetchOrphans(): Promise<OrphanReport> {
+  const response = await fetch(`${API_BASE}/admin/orphans`);
+  return handleResponse<OrphanReport>(response);
+}
+
+export async function runCleanup(): Promise<CleanupReport> {
+  const response = await fetch(`${API_BASE}/admin/cleanup`, {
+    method: 'POST',
+  });
+  return handleResponse<CleanupReport>(response);
+}
+
+export async function checkHealth(): Promise<{ status: string; timestamp: string }> {
+  const response = await fetch('/health');
+  return handleResponse<{ status: string; timestamp: string }>(response);
 }
