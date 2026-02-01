@@ -53,19 +53,39 @@ export async function forwardToUpstream(
     const proxyReq = https.request(options, (proxyRes: IncomingMessage) => {
       const statusCode = proxyRes.statusCode ?? 500;
 
-      // Forward status and headers
-      reply.status(statusCode);
-
-      // Forward response headers (excluding hop-by-hop)
+      // Build headers to forward (excluding hop-by-hop)
+      const forwardHeaders: Record<string, string | string[]> = {};
       for (const [key, value] of Object.entries(proxyRes.headers)) {
-        if (value && !['connection', 'transfer-encoding'].includes(key.toLowerCase())) {
-          reply.header(key, value);
+        const lowerKey = key.toLowerCase();
+        if (value && !['connection', 'transfer-encoding', 'content-length'].includes(lowerKey)) {
+          forwardHeaders[key] = value;
         }
       }
 
-      // Stream the response body
-      reply.send(proxyRes);
-      resolve(statusCode);
+      // For SSE responses, ensure proper streaming headers
+      const contentType = proxyRes.headers['content-type'];
+      if (contentType?.includes('text/event-stream')) {
+        forwardHeaders['cache-control'] = 'no-cache';
+        forwardHeaders['connection'] = 'keep-alive';
+      }
+
+      // Use raw response to bypass Fastify buffering
+      // This is critical for SSE streaming to work properly
+      reply.raw.writeHead(statusCode, forwardHeaders);
+
+      proxyRes.on('data', (chunk) => {
+        reply.raw.write(chunk);
+      });
+
+      proxyRes.on('end', () => {
+        reply.raw.end();
+        resolve(statusCode);
+      });
+
+      proxyRes.on('error', (err) => {
+        reply.raw.end();
+        reject(err);
+      });
     });
 
     proxyReq.on('error', (err) => {
