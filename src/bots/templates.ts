@@ -42,15 +42,21 @@ export interface BotWorkspaceConfig {
  */
 function generateOpenclawConfig(config: BotWorkspaceConfig): object {
   // Format model as provider/model (e.g., "openai/gpt-4o")
-  const modelSpec = `${config.aiProvider}/${config.model}`;
+  // When using proxy, use custom provider name to avoid merging with built-in defaults
+  // that have hardcoded baseUrl values
+  const modelSpec = config.proxy
+    ? `${config.aiProvider}-proxy/${config.model}`
+    : `${config.aiProvider}/${config.model}`;
 
   // Build models config - use proxy if configured
+  // Custom provider name prevents OpenClaw from merging with built-in provider defaults
   const modelsConfig = config.proxy
     ? {
         providers: {
-          [config.aiProvider]: {
+          [`${config.aiProvider}-proxy`]: {
             baseUrl: config.proxy.baseUrl,
             apiKey: config.proxy.token,
+            api: 'openai-responses', // Required for custom providers
             models: [{ id: config.model, name: config.model }],
           },
         },
