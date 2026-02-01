@@ -9,6 +9,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { DockerService } from './DockerService.js';
 import { listBots, updateBot } from '../bots/store.js';
+import { getDb } from '../db/index.js';
 import { deleteBotWorkspace } from '../bots/templates.js';
 import { deleteBotSecrets, getSecretsRoot } from '../secrets/manager.js';
 import type { Bot } from '../types/bot.js';
@@ -161,15 +162,21 @@ export class ReconciliationService {
    * Returns true if status was updated.
    */
   private async syncBotStatus(bot: Bot, hasContainer: boolean): Promise<boolean> {
+    const db = getDb();
+
     if (!hasContainer) {
       // No container exists
       if (bot.status === 'running') {
-        updateBot(bot.id, { status: 'stopped', container_id: null });
+        db.transaction(() => {
+          updateBot(bot.id, { status: 'stopped', container_id: null });
+        })();
         this.logger.info({ hostname: bot.hostname }, 'Bot marked stopped (no container)');
         return true;
       }
       if (bot.container_id) {
-        updateBot(bot.id, { container_id: null });
+        db.transaction(() => {
+          updateBot(bot.id, { container_id: null });
+        })();
         return true;
       }
       return false;
@@ -180,7 +187,9 @@ export class ReconciliationService {
     if (!containerStatus) {
       // Container disappeared between list and inspect
       if (bot.status === 'running') {
-        updateBot(bot.id, { status: 'stopped', container_id: null });
+        db.transaction(() => {
+          updateBot(bot.id, { status: 'stopped', container_id: null });
+        })();
         return true;
       }
       return false;
@@ -188,7 +197,9 @@ export class ReconciliationService {
 
     // Sync status based on container state
     if (containerStatus.running && bot.status !== 'running') {
-      updateBot(bot.id, { status: 'running' });
+      db.transaction(() => {
+        updateBot(bot.id, { status: 'running' });
+      })();
       this.logger.info({ hostname: bot.hostname }, 'Bot marked running');
       return true;
     }
@@ -196,7 +207,9 @@ export class ReconciliationService {
     if (!containerStatus.running && bot.status === 'running') {
       // Container stopped or exited
       const newStatus = containerStatus.exitCode !== 0 ? 'error' : 'stopped';
-      updateBot(bot.id, { status: newStatus });
+      db.transaction(() => {
+        updateBot(bot.id, { status: newStatus });
+      })();
       this.logger.info({ hostname: bot.hostname, status: newStatus }, 'Bot status synced from container');
       return true;
     }

@@ -39,9 +39,11 @@ function migrateAddHostnameColumn(db: Database.Database): void {
   const hasHostname = columns.some(col => col.name === 'hostname');
 
   if (!hasHostname) {
-    // Add column (SQLite doesn't support NOT NULL for ALTER TABLE ADD COLUMN without default)
-    db.exec('ALTER TABLE bots ADD COLUMN hostname TEXT');
-    // Populate hostname from name for existing rows
-    db.exec('UPDATE bots SET hostname = name WHERE hostname IS NULL');
+    db.transaction(() => {
+      // Add column (SQLite doesn't support NOT NULL for ALTER TABLE ADD COLUMN without default)
+      db.exec('ALTER TABLE bots ADD COLUMN hostname TEXT');
+      // Populate hostname from name for existing rows
+      db.exec('UPDATE bots SET hostname = name WHERE hostname IS NULL');
+    })();
   }
 }

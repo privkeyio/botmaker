@@ -21,6 +21,7 @@ import {
   deleteBot,
   getNextBotPort,
 } from './bots/store.js';
+import { getDb } from './db/index.js';
 import { createBotWorkspace, deleteBotWorkspace } from './bots/templates.js';
 import { writeSecret, deleteBotSecrets } from './secrets/manager.js';
 import { DockerService } from './services/DockerService.js';
@@ -284,9 +285,14 @@ export async function buildServer(): Promise<FastifyInstance> {
         networkName: proxyConfig ? 'bm-internal' : undefined,
       });
 
-      updateBot(bot.id, { container_id: containerId });
+      const db = getDb();
+      db.transaction(() => {
+        updateBot(bot.id, { container_id: containerId });
+      })();
       await docker.startContainer(bot.hostname);
-      updateBot(bot.id, { status: 'running' });
+      db.transaction(() => {
+        updateBot(bot.id, { status: 'running' });
+      })();
 
       const updatedBot = getBot(bot.id);
       reply.code(201);
@@ -344,7 +350,10 @@ export async function buildServer(): Promise<FastifyInstance> {
     deleteBotSecrets(bot.hostname);
 
     // Delete bot record
-    deleteBot(bot.id);
+    const db = getDb();
+    db.transaction(() => {
+      deleteBot(bot.id);
+    })();
 
     return { success: true };
   });
