@@ -1,14 +1,16 @@
 # BotMaker
 
-Web UI for managing OpenClaw AI chatbots in Docker containers.
+Web UI for managing [OpenClaw](https://github.com/jgarzik/openclaw) AI chatbots in Docker containers.
+
+**OpenClaw** is a multi-channel AI chatbot framework. BotMaker provides the management layer: a dashboard to create, configure, and monitor OpenClaw bots without editing config files.
 
 ## Key Features
 
 ### Zero-Trust API Key Architecture
 
-BotMaker isolates API keys from bot containers entirely. Bots never see your real API credentials.
+Traditional setups pass API keys directly to bots—if a bot is compromised, your keys leak. BotMaker uses a **zero-trust** model: bots never have access to real credentials, even if fully compromised.
 
-**Why this matters:** API key leaks are rampant in AI applications. Prompt injection attacks, compromised dependencies, and overly-verbose logging all create opportunities for keys to leak. With BotMaker:
+**Why this matters:** API key leaks are common in AI applications—prompt injection attacks, compromised dependencies, and verbose logging all create leak vectors. With BotMaker:
 
 - Bot containers receive only a proxy URL, never real API keys
 - A separate **keyring-proxy** container holds encrypted credentials
@@ -56,26 +58,51 @@ BotMaker isolates API keys from bot containers entirely. Bots never see your rea
 
 ## Requirements
 
-- Node.js 20+
-- Docker
-- OpenClaw Docker image (`openclaw:latest` or custom base image)
+- Docker and Docker Compose
+- Node.js 20+ (for development only)
+- OpenClaw base image — build from [OpenClaw repo](https://github.com/jgarzik/openclaw) or use a prebuilt image:
+  ```bash
+  # Option A: Build from source
+  git clone https://github.com/jgarzik/openclaw && cd openclaw && docker build -t openclaw:latest .
+
+  # Option B: Use a prebuilt image (set OPENCLAW_BASE_IMAGE in docker-compose.yml)
+  ```
 
 ## Quick Start
 
 ### Docker Compose (Recommended)
 
 ```bash
-# Build the bot environment image (includes build tools, python, etc.)
+# 1. Initialize secrets (first time only)
+mkdir -p secrets
+openssl rand -hex 32 > secrets/master_key
+openssl rand -hex 32 > secrets/admin_token
+cp secrets/admin_token secrets/proxy_admin_token
+
+# 2. Build images (first time, or after code changes)
 docker compose build botenv
+docker compose build
 
-# Run services
-docker compose up -d
+# 3. Run services
+ADMIN_PASSWORD=your-secure-password-here docker compose up -d
 
-# View logs
-docker compose logs -f
+# 4. Open dashboard
+open http://localhost:7100   # or visit in browser
+```
 
-# Stop
-docker compose down
+**Note:** `ADMIN_PASSWORD` must be at least 12 characters.
+
+**Tip:** Create a `.env` file to avoid typing the password each time:
+```bash
+echo "ADMIN_PASSWORD=your-secure-password-here" > .env
+# Now you can just run: docker compose up -d
+```
+
+Other useful commands:
+```bash
+docker compose logs -f      # View logs
+docker compose down         # Stop services
+docker compose ps           # Check status
 ```
 
 ### Development
@@ -87,20 +114,20 @@ cd dashboard && npm install && cd ..
 cd proxy && npm install && cd ..
 
 # Start backend (with hot reload)
-npm run dev
+ADMIN_PASSWORD=devpassword12 npm run dev
 
 # Start dashboard (in another terminal)
 cd dashboard && npm run dev
 ```
 
-### Production
+### Production (without Docker)
 
 ```bash
 # Build everything
 npm run build:all
 
 # Start
-npm start
+ADMIN_PASSWORD=your-secure-password npm start
 ```
 
 ## Authentication
@@ -120,6 +147,18 @@ ADMIN_PASSWORD=your-secure-password npm run dev
 - Cannot be empty or omitted
 
 On first visit, you'll see a login form. Enter the password to access the dashboard. Sessions are stored in-memory and expire after 24 hours.
+
+### After Login
+
+1. **Add API Keys** — Go to the Secrets tab and add your AI provider API keys (OpenAI, Anthropic, etc.). These are stored encrypted in the keyring-proxy.
+
+2. **Create a Bot** — Click "New Bot" and follow the wizard. You'll need:
+   - A name and hostname for your bot
+   - Select an AI provider (must have a key added first)
+   - A channel token (Telegram bot token or Discord bot token)
+   - A persona (name and personality description)
+
+3. **Monitor** — The Dashboard tab shows all bots with their status. Start/stop bots, view logs, and check resource usage.
 
 ### Login API
 
@@ -205,7 +244,13 @@ botmaker/
 ### Running Tests
 
 ```bash
-# Run E2E tests (requires running server)
+# Backend unit tests
+npm test
+
+# Dashboard unit tests
+cd dashboard && npm test
+
+# E2E tests (requires running server)
 ./scripts/test-e2e.sh
 ```
 
