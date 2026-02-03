@@ -19,7 +19,13 @@ export function clearAdminToken(): void {
   localStorage.removeItem('admin_token');
 }
 
-function getAuthHeaders(): HeadersInit {
+let onAuthInvalidated: (() => void) | null = null;
+
+export function setAuthInvalidatedCallback(callback: (() => void) | null): void {
+  onAuthInvalidated = callback;
+}
+
+function getAuthHeaders(): Record<string, string> {
   const token = getAdminToken();
   if (!token) {
     throw new Error('Not authenticated. Please provide an admin token.');
@@ -32,6 +38,7 @@ function getAuthHeaders(): HeadersInit {
 async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 401 || response.status === 403) {
     clearAdminToken();
+    onAuthInvalidated?.();
     throw new Error('Authentication failed. Please re-enter your admin token.');
   }
   if (!response.ok) {
@@ -59,7 +66,7 @@ export async function fetchBot(hostname: string): Promise<Bot> {
 export async function createBot(input: CreateBotInput): Promise<Bot> {
   const response = await fetch(`${API_BASE}/bots`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...Object.fromEntries(Object.entries(getAuthHeaders())) },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(input),
   });
   return handleResponse<Bot>(response);
@@ -151,7 +158,7 @@ export async function fetchProxyKeys(): Promise<ProxyKey[]> {
 export async function addProxyKey(input: AddKeyInput): Promise<{ id: string }> {
   const response = await fetch(`${API_BASE}/proxy/keys`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...Object.fromEntries(Object.entries(getAuthHeaders())) },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(input),
   });
   return handleResponse<{ id: string }>(response);

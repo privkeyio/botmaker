@@ -75,6 +75,13 @@ export function getConfig(): AppConfig {
     ?? process.env.ADMIN_PASSWORD
     ?? '';
 
+  if (!adminPassword) {
+    throw new Error('ADMIN_PASSWORD or ADMIN_PASSWORD_FILE environment variable is required');
+  }
+  if (adminPassword.length < 12) {
+    throw new Error('ADMIN_PASSWORD must be at least 12 characters');
+  }
+
   return {
     port: getEnvIntOrDefault('PORT', 7100),
     host: getEnvOrDefault('HOST', '0.0.0.0'),

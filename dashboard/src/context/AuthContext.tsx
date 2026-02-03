@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { getAdminToken, login as apiLogin, logout as apiLogout } from '../api';
+import { getAdminToken, login as apiLogin, logout as apiLogout, setAuthInvalidatedCallback } from '../api';
 
 interface AuthContextValue {
   isAuthenticated: boolean;
@@ -27,6 +27,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const token = getAdminToken();
     setIsAuthenticated(!!token);
     setIsLoading(false);
+  }, []);
+
+  // Register callback for API-level auth invalidation (401/403)
+  useEffect(() => {
+    setAuthInvalidatedCallback(() => {
+      setIsAuthenticated(false);
+      setError(null);
+    });
+    return () => { setAuthInvalidatedCallback(null); };
   }, []);
 
   const login = useCallback(async (password: string) => {

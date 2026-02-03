@@ -6,12 +6,14 @@ import { AuthProvider, useAuth } from './AuthContext';
 const mockGetAdminToken = vi.fn();
 const mockLogin = vi.fn();
 const mockLogout = vi.fn();
+const mockSetAuthInvalidatedCallback = vi.fn();
 
 // Mock the api module
 vi.mock('../api', () => ({
   getAdminToken: () => mockGetAdminToken() as string | null,
   login: (password: string) => mockLogin(password) as Promise<string>,
   logout: () => mockLogout() as Promise<void>,
+  setAuthInvalidatedCallback: (cb: (() => void) | null): void => { mockSetAuthInvalidatedCallback(cb); },
 }));
 
 // Test component to access auth context
@@ -185,5 +187,53 @@ describe('AuthContext', () => {
     }).toThrow('useAuth must be used within an AuthProvider');
 
     consoleError.mockRestore();
+  });
+
+  it('should register auth invalidation callback on mount', async () => {
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading').textContent).toBe('false');
+    });
+
+    expect(mockSetAuthInvalidatedCallback).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('should set isAuthenticated false and clear error when auth invalidation callback is called', async () => {
+    mockGetAdminToken.mockReturnValue('existing-token');
+    mockLogin.mockRejectedValueOnce(new Error('Some error'));
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+
+    // Wait for initial load with token
+    await waitFor(() => {
+      expect(screen.getByTestId('authenticated').textContent).toBe('true');
+    });
+
+    // Trigger login to set an error
+    act(() => {
+      screen.getByText('Login').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toBe('Some error');
+    });
+
+    // Simulate auth invalidation by calling the registered callback
+    const callback = mockSetAuthInvalidatedCallback.mock.calls[0][0] as () => void;
+    act(() => {
+      callback();
+    });
+
+    expect(screen.getByTestId('authenticated').textContent).toBe('false');
+    expect(screen.getByTestId('error').textContent).toBe('no-error');
   });
 });

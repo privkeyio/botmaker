@@ -17,6 +17,11 @@ describe('Config', () => {
     delete process.env.PROXY_ADMIN_URL;
     delete process.env.PROXY_ADMIN_TOKEN;
     delete process.env.PROXY_ADMIN_TOKEN_FILE;
+    delete process.env.ADMIN_PASSWORD;
+    delete process.env.ADMIN_PASSWORD_FILE;
+
+    // Set valid admin password for tests (required, min 12 chars)
+    process.env.ADMIN_PASSWORD = 'test-password-12chars';
 
     // Reset modules to get fresh config
     vi.resetModules();
@@ -114,5 +119,24 @@ describe('Config', () => {
     const { getConfig } = await import('./config.js');
     const config = getConfig();
     expect(config.proxyAdminToken).toBe('secret-token');
+  });
+
+  it('should throw if ADMIN_PASSWORD is missing', async () => {
+    delete process.env.ADMIN_PASSWORD;
+    const { getConfig } = await import('./config.js');
+    expect(() => getConfig()).toThrow('ADMIN_PASSWORD or ADMIN_PASSWORD_FILE environment variable is required');
+  });
+
+  it('should throw if ADMIN_PASSWORD is too short', async () => {
+    process.env.ADMIN_PASSWORD = 'short';
+    const { getConfig } = await import('./config.js');
+    expect(() => getConfig()).toThrow('ADMIN_PASSWORD must be at least 12 characters');
+  });
+
+  it('should read ADMIN_PASSWORD from env', async () => {
+    process.env.ADMIN_PASSWORD = 'valid-password-12';
+    const { getConfig } = await import('./config.js');
+    const config = getConfig();
+    expect(config.adminPassword).toBe('valid-password-12');
   });
 });

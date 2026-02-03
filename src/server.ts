@@ -147,14 +147,6 @@ export async function buildServer(): Promise<FastifyInstance> {
   });
 
   // Authentication middleware for API routes
-  if (!config.adminPassword) {
-    throw new Error('ADMIN_PASSWORD or ADMIN_PASSWORD_FILE environment variable is required');
-  }
-
-  if (config.adminPassword.length < 12) {
-    throw new Error('ADMIN_PASSWORD must be at least 12 characters');
-  }
-
   server.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (request.url === '/health') {
       return;
