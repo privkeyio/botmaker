@@ -19,11 +19,13 @@ interface BotCardProps {
 function getEffectiveStatus(bot: Bot): BotStatus {
   const containerState = bot.container_status?.state;
   if (containerState === 'running') {
-    // Check if recently started (within 8 seconds)
-    const startedAt = bot.container_status?.startedAt;
-    if (startedAt) {
-      const elapsed = Date.now() - new Date(startedAt).getTime();
-      if (elapsed < 8000) return 'starting';
+    // Use Docker health check status to determine if bot is ready
+    const health = bot.container_status?.health;
+    if (health === 'starting' || health === 'none') {
+      return 'starting';
+    }
+    if (health === 'unhealthy') {
+      return 'error';
     }
     return 'running';
   }
