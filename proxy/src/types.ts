@@ -62,4 +62,10 @@ export const VENDOR_CONFIGS: Record<string, VendorConfig> = {
     authHeader: 'Authorization',
     authFormat: (key) => `Bearer ${key}`,
   },
+  grok: {
+    host: 'api.x.ai',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
 };
