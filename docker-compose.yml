@@ -51,6 +51,8 @@ services:
   keyring-proxy:
     build: ./proxy
     container_name: keyring-proxy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - ADMIN_PORT=9100
       - DATA_PORT=9101
