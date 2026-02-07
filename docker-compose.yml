@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.botenv
       args:
-        BASE_IMAGE: ${OPENCLAW_BASE_IMAGE:-openclaw:latest}
+        BASE_IMAGE: ${OPENCLAW_BASE_IMAGE:-ghcr.io/openclaw/openclaw:latest}
     image: ${BOTENV_IMAGE:-botmaker-env:latest}
 
   botmaker:

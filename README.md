@@ -60,12 +60,9 @@ Traditional setups pass API keys directly to bots—if a bot is compromised, you
 
 - Docker and Docker Compose
 - Node.js 20+ (for development only)
-- OpenClaw base image — build from [OpenClaw repo](https://github.com/jgarzik/openclaw) or use a prebuilt image:
+- OpenClaw base image — pulled automatically from GHCR, or pull manually:
   ```bash
-  # Option A: Build from source
-  git clone https://github.com/jgarzik/openclaw && cd openclaw && docker build -t openclaw:latest .
-
-  # Option B: Use a prebuilt image (set OPENCLAW_BASE_IMAGE in docker-compose.yml)
+  docker pull ghcr.io/openclaw/openclaw:latest
   ```
 
 ## Quick Start
@@ -182,7 +179,7 @@ curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:7100/api/logout
 | `DATA_DIR` | ./data | Database and bot workspaces |
 | `SECRETS_DIR` | ./secrets | Per-bot secret storage |
 | `BOTENV_IMAGE` | botmaker-env:latest | Bot container image (built from botenv) |
-| `OPENCLAW_BASE_IMAGE` | openclaw:latest | Base image for botenv |
+| `OPENCLAW_BASE_IMAGE` | ghcr.io/openclaw/openclaw:latest | Base image for botenv |
 | `BOT_PORT_START` | 19000 | Starting port for bot containers |
 | `SESSION_EXPIRY_MS` | 86400000 | Session expiry in milliseconds (default 24h) |
 

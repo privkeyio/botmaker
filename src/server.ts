@@ -392,7 +392,7 @@ export async function buildServer(): Promise<FastifyInstance> {
 
       const db = getDb();
       db.transaction(() => {
-        updateBot(bot.id, { container_id: containerId });
+        updateBot(bot.id, { container_id: containerId, image_version: config.openclawImage });
       })();
       await docker.startContainer(bot.hostname);
       db.transaction(() => {

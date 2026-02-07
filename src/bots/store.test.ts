@@ -197,6 +197,15 @@ describe('Bot Store', () => {
       expect(updated?.tags).toBe('["new1","new2"]');
     });
 
+    it('should update image_version', () => {
+      const created = createBot(createTestBotInput());
+      expect(created.image_version).toBeNull();
+
+      const updated = updateBot(created.id, { image_version: 'ghcr.io/openclaw/openclaw:latest' });
+      expect(updated).not.toBeNull();
+      expect(updated?.image_version).toBe('ghcr.io/openclaw/openclaw:latest');
+    });
+
     it('should clear tags', () => {
       const created = createBot(createTestBotInput({ tags: ['tag'] }));
       const updated = updateBot(created.id, { tags: null });

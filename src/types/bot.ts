@@ -11,6 +11,7 @@ export interface Bot {
   port: number | null;  // Allocated port for container
   gateway_token: string | null; // OpenClaw gateway authentication token
   tags: string | null;  // JSON array of API routing tags
+  image_version: string | null; // Docker image used to create this bot's container
   status: BotStatus;
   created_at: string;   // ISO datetime
   updated_at: string;   // ISO datetime

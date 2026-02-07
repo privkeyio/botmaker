@@ -29,6 +29,7 @@ export interface UpdateBotInput {
   port?: number | null;
   gateway_token?: string | null;
   tags?: string[] | null;
+  image_version?: string | null;
   status?: BotStatus;
 }
 
@@ -62,6 +63,7 @@ export function createBot(input: CreateBotInput): Bot {
     port: input.port,
     gateway_token: input.gateway_token,
     tags: tagsJson,
+    image_version: null,
     status: 'created',
     created_at: now,
     updated_at: now,
@@ -168,6 +170,10 @@ export function updateBot(id: string, input: UpdateBotInput): Bot | null {
   if (input.tags !== undefined) {
     updates.push('tags = ?');
     values.push(input.tags && input.tags.length > 0 ? JSON.stringify(input.tags) : null);
+  }
+  if (input.image_version !== undefined) {
+    updates.push('image_version = ?');
+    values.push(input.image_version);
   }
   if (input.status !== undefined) {
     updates.push('status = ?');

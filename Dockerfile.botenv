@@ -2,7 +2,7 @@
 # Build: docker compose build botenv
 # Usage: Automatically used by botmaker when spawning bot containers
 
-ARG BASE_IMAGE=openclaw:latest
+ARG BASE_IMAGE=ghcr.io/openclaw/openclaw:latest
 FROM ${BASE_IMAGE}
 
 # Switch to root for package installation

@@ -42,7 +42,7 @@ describe('Config', () => {
     expect(config.secretsDir).toBe('./secrets');
     expect(config.dataVolumeName).toBeNull();
     expect(config.secretsVolumeName).toBeNull();
-    expect(config.openclawImage).toBe('openclaw:latest');
+    expect(config.openclawImage).toBe('ghcr.io/openclaw/openclaw:latest');
     expect(config.openclawGitTag).toBe('main');
     expect(config.botPortStart).toBe(19000);
     expect(config.proxyAdminUrl).toBeNull();
