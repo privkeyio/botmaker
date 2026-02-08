@@ -73,12 +73,14 @@ export function registerProxyRoutes(
       keyId = keySelection.keyId;
     }
 
+    const FORWARDED_HEADERS = ['content-type', 'accept', 'user-agent'];
     const headers: Record<string, string> = {};
-    for (const [key, value] of Object.entries(req.headers)) {
+    for (const name of FORWARDED_HEADERS) {
+      const value = req.headers[name];
       if (typeof value === 'string') {
-        headers[key] = value;
+        headers[name] = value;
       } else if (Array.isArray(value)) {
-        headers[key] = value[0];
+        headers[name] = value[0];
       }
     }
 

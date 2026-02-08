@@ -114,6 +114,49 @@ function toDockerHostUrl(url: string): string {
   return url.replace(/\blocalhost\b|127\.0\.0\.1/g, 'host.docker.internal');
 }
 
+function isPrivateUrl(urlStr: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(urlStr);
+  } catch {
+    return true;
+  }
+
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return true;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  if (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1' ||
+    hostname === '[::1]' ||
+    hostname === '0.0.0.0' ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.internal')
+  ) {
+    return true;
+  }
+
+  const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const [, a, b, c, d] = ipv4Match.map(Number);
+    if (a === 10) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 127) return true;
+    if (a === 0) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 198 && b >= 18 && b <= 19) return true;
+    if (a === 240 || (a === 255 && b === 255 && c === 255 && d === 255)) return true;
+  }
+
+  return false;
+}
+
 async function resolveHostPaths(config: ReturnType<typeof getConfig>): Promise<{
   hostDataDir: string;
   hostSecretsDir: string;
@@ -146,7 +189,18 @@ export async function buildServer(): Promise<FastifyInstance> {
 
   // Register security headers
   await server.register(fastifyHelmet, {
-    contentSecurityPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+      },
+    },
   });
 
   // Register rate limiting
@@ -265,6 +319,11 @@ export async function buildServer(): Promise<FastifyInstance> {
       return { error: 'Missing required field: name' };
     }
 
+    if (!/^[a-zA-Z0-9 _.\-]{1,128}$/.test(body.name)) {
+      reply.code(400);
+      return { error: 'Bot name must be 1-128 characters: letters, numbers, spaces, underscores, dots, hyphens' };
+    }
+
     if (!body.hostname) {
       reply.code(400);
       return { error: 'Missing required field: hostname' };
@@ -376,15 +435,6 @@ export async function buildServer(): Promise<FastifyInstance> {
         `AI_MODEL=${primaryProvider.model}`,
         `PORT=${port}`,
       ];
-
-      // Add channel tokens
-      for (const channel of body.channels) {
-        if (channel.channelType === 'telegram') {
-          environment.push(`TELEGRAM_BOT_TOKEN=${channel.token}`);
-        } else if (channel.channelType === 'discord') {
-          environment.push(`DISCORD_TOKEN=${channel.token}`);
-        }
-      }
 
       const containerId = await docker.createContainer(bot.hostname, bot.id, {
         image: config.openclawImage,
@@ -611,26 +661,33 @@ export async function buildServer(): Promise<FastifyInstance> {
     }
   });
 
-  // Dynamic model discovery for any OpenAI-compatible provider (e.g., Ollama)
-  // Fetches from the provider's /v1/models endpoint.
-  server.get<{ Querystring: { baseUrl?: string; apiKey?: string } }>('/api/models/discover', async (request, reply) => {
-    const baseUrl = request.query.baseUrl;
+  server.post<{ Body: { baseUrl?: string; apiKey?: string } }>('/api/models/discover', async (request, reply) => {
+    const baseUrl = request.body.baseUrl;
     if (!baseUrl) {
       reply.code(400);
-      return { error: 'Missing baseUrl query parameter' };
+      return { error: 'Missing baseUrl in request body' };
+    }
+
+    if (isPrivateUrl(baseUrl)) {
+      reply.code(400);
+      return { error: 'Requests to private/internal addresses are not allowed' };
     }
 
     try {
-      // Translate localhost → host.docker.internal for fetches from inside Docker
       const fetchBase = toDockerHostUrl(baseUrl);
-      // Append /models to the base URL, preserving path (e.g. /v1 → /v1/models)
+
+      if (isPrivateUrl(fetchBase)) {
+        reply.code(400);
+        return { error: 'Requests to private/internal addresses are not allowed' };
+      }
+
       const url = fetchBase.replace(/\/+$/, '') + '/models';
       const controller = new AbortController();
       const timeout = setTimeout(() => { controller.abort(); }, 5000);
 
       const headers: Record<string, string> = {};
-      if (request.query.apiKey) {
-        headers.Authorization = `Bearer ${request.query.apiKey}`;
+      if (request.body.apiKey) {
+        headers.Authorization = `Bearer ${request.body.apiKey}`;
       }
 
       const response = await fetch(url, { signal: controller.signal, headers });
@@ -644,7 +701,6 @@ export async function buildServer(): Promise<FastifyInstance> {
       const models = (data.data ?? []).map((m: { id: string }) => m.id);
       return { models };
     } catch {
-      // Connection refused, timeout, etc. — graceful fallback
       return { models: [] };
     }
   });

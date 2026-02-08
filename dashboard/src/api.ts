@@ -180,11 +180,15 @@ export async function fetchProxyHealth(): Promise<ProxyHealthResponse> {
 }
 
 export async function fetchDynamicModels(baseUrl: string, apiKey?: string): Promise<string[]> {
-  let url = `${API_BASE}/models/discover?baseUrl=${encodeURIComponent(baseUrl)}`;
+  const body: { baseUrl: string; apiKey?: string } = { baseUrl };
   if (apiKey) {
-    url += `&apiKey=${encodeURIComponent(apiKey)}`;
+    body.apiKey = apiKey;
   }
-  const response = await fetch(url, { headers: getAuthHeaders() });
+  const response = await fetch(`${API_BASE}/models/discover`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+    body: JSON.stringify(body),
+  });
   const data = await handleResponse<{ models: string[] }>(response);
   return data.models;
 }

@@ -8,8 +8,8 @@
 import { mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Hostname regex for validation - prevents directory traversal attacks */
 const HOSTNAME_REGEX = /^[a-z0-9-]{1,64}$/;
+const SECRET_NAME_REGEX = /^[A-Z0-9_]{1,64}$/;
 
 /**
  * Returns the root directory for secrets storage.
@@ -64,7 +64,10 @@ export function createBotSecretsDir(hostname: string): string {
 export function writeSecret(hostname: string, name: string, value: string): void {
   validateHostname(hostname);
 
-  // Ensure bot directory exists
+  if (!SECRET_NAME_REGEX.test(name)) {
+    throw new Error(`Invalid secret name: ${name}`);
+  }
+
   const botDir = createBotSecretsDir(hostname);
   const filePath = join(botDir, name);
 
@@ -81,6 +84,10 @@ export function writeSecret(hostname: string, name: string, value: string): void
  */
 export function readSecret(hostname: string, name: string): string | undefined {
   validateHostname(hostname);
+
+  if (!SECRET_NAME_REGEX.test(name)) {
+    throw new Error(`Invalid secret name: ${name}`);
+  }
 
   const secretsRoot = getSecretsRoot();
   const filePath = join(secretsRoot, hostname, name);

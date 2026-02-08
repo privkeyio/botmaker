@@ -195,18 +195,16 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   const botDir = join(dataDir, 'bots', config.botHostname);
   const workspaceDir = join(botDir, 'workspace');
 
-  // Create directories with permissions for bot container (runs as uid 1000)
-  mkdirSync(botDir, { recursive: true, mode: 0o777 });
-  mkdirSync(workspaceDir, { recursive: true, mode: 0o777 });
-  // Ensure parent dir has correct permissions (recursive: true doesn't set mode on existing dirs)
-  chmodSync(botDir, 0o777);
-  chmodSync(workspaceDir, 0o777);
+  mkdirSync(botDir, { recursive: true, mode: 0o755 });
+  mkdirSync(workspaceDir, { recursive: true, mode: 0o755 });
+  chmodSync(botDir, 0o755);
+  chmodSync(workspaceDir, 0o755);
 
   // Write openclaw.json at root of bot directory (OPENCLAW_STATE_DIR)
   const openclawConfig = generateOpenclawConfig(config);
   const configPath = join(botDir, 'openclaw.json');
   writeFileSync(configPath, JSON.stringify(openclawConfig, null, 2));
-  chmodSync(configPath, 0o666);
+  chmodSync(configPath, 0o644);
 
   // Write only persona files — OpenClaw's ensureAgentWorkspace() will create
   // AGENTS.md, BOOTSTRAP.md, TOOLS.md, HEARTBEAT.md from its own templates
@@ -215,29 +213,29 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   const identityPath = join(workspaceDir, 'IDENTITY.md');
   writeFileSync(soulPath, generateSoulMd(config.persona));
   writeFileSync(identityPath, generateIdentityMd(config.persona));
-  chmodSync(soulPath, 0o666);
-  chmodSync(identityPath, 0o666);
+  chmodSync(soulPath, 0o644);
+  chmodSync(identityPath, 0o644);
 
   // OpenClaw runs as uid 1000 (node user), so we need to set ownership
   const OPENCLAW_UID = 1000;
   const OPENCLAW_GID = 1000;
 
   const agentDir = join(botDir, 'agents', 'main', 'agent');
-  mkdirSync(agentDir, { recursive: true, mode: 0o777 });
-  chmodSync(agentDir, 0o777);
+  mkdirSync(agentDir, { recursive: true, mode: 0o755 });
+  chmodSync(agentDir, 0o755);
   tryChown(agentDir, OPENCLAW_UID, OPENCLAW_GID);
 
   // Pre-create sessions directory for OpenClaw runtime use
   const sessionsDir = join(botDir, 'agents', 'main', 'sessions');
-  mkdirSync(sessionsDir, { recursive: true, mode: 0o777 });
-  chmodSync(sessionsDir, 0o777);
+  mkdirSync(sessionsDir, { recursive: true, mode: 0o755 });
+  chmodSync(sessionsDir, 0o755);
   tryChown(sessionsDir, OPENCLAW_UID, OPENCLAW_GID);
 
   // Pre-create sandbox directory for OpenClaw code execution
   // OpenClaw hardcodes /app/workspace for sandbox operations
   const sandboxDir = join(botDir, 'sandbox');
-  mkdirSync(sandboxDir, { recursive: true, mode: 0o777 });
-  chmodSync(sandboxDir, 0o777);
+  mkdirSync(sandboxDir, { recursive: true, mode: 0o755 });
+  chmodSync(sandboxDir, 0o755);
   tryChown(sandboxDir, OPENCLAW_UID, OPENCLAW_GID);
 }
 
