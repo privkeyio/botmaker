@@ -15,9 +15,9 @@ describe('Provider configs', () => {
   it('getProvider returns correct config for grok', () => {
     const grok = getProvider('grok');
     expect(grok).toBeDefined();
-    expect(grok!.id).toBe('grok');
-    expect(grok!.label).toBe('Grok (xAI)');
-    expect(grok!.baseUrl).toBe('https://api.x.ai/v1');
+    expect(grok?.id).toBe('grok');
+    expect(grok?.label).toBe('Grok (xAI)');
+    expect(grok?.baseUrl).toBe('https://api.x.ai/v1');
   });
 
   it('getDefaultModel returns grok-4-1-fast for grok', () => {
