@@ -29,5 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iproute2 netcat-openbsd dnsutils \
  && rm -rf /var/lib/apt/lists/*
 
+# Make openclaw CLI available on PATH
+RUN ln -s /app/openclaw.mjs /usr/local/bin/openclaw
+
 # Switch back to non-root user
 USER node

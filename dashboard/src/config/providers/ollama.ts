@@ -3,10 +3,9 @@ import type { ProviderConfig } from './types';
 export const ollama: ProviderConfig = {
   id: 'ollama',
   label: 'Ollama',
-  baseUrl: 'http://host.docker.internal:4001/v1',
-  keyHint: 'superproxy master API key',
+  baseUrl: 'http://localhost:11434/v1',
   defaultModel: '',
   models: [],
   dynamicModels: true,
-  baseUrlEditable: true,
+  noAuth: true,
 };

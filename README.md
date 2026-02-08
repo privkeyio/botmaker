@@ -19,7 +19,7 @@ Traditional setups pass API keys directly to bots—if a bot is compromised, you
 
 ### Additional Features
 
-- **Multi-AI Provider Support** - OpenAI, Anthropic, Google Gemini, Venice
+- **Multi-AI Provider Support** - OpenAI, Anthropic, Google Gemini, Venice, Ollama (local LLMs)
 - **Multi-Channel Wizard** - Telegram, Discord (all others supported by chatting with your bot post-setup)
 - **Container Isolation** - Each bot runs in its own Docker container
 - **Dashboard** - Creation wizard, monitoring, diagnostics
@@ -152,6 +152,30 @@ On first visit, you'll see a login form. Enter the password to access the dashbo
    - A persona (name and personality description)
 
 3. **Monitor** — The Dashboard tab shows all bots with their status. Start/stop bots, view logs, and check resource usage.
+
+### Ollama (Local LLM) Support
+
+BotMaker can use [Ollama](https://ollama.com/) for local LLM inference. The Ollama connection is configured on the proxy side — bots never see the Ollama URI, maintaining the zero-trust architecture.
+
+**Setup:**
+
+1. Install and run Ollama on the host machine
+2. Pull a model: `ollama pull qwen2.5:32b-instruct`
+3. Add `OLLAMA_UPSTREAM` to the keyring-proxy environment in `docker-compose.yml`:
+   ```yaml
+   keyring-proxy:
+     environment:
+       - OLLAMA_UPSTREAM=http://host.docker.internal:11434
+   ```
+4. Restart: `docker compose up -d`
+5. In the dashboard wizard, select "Ollama" as the provider and pick a model
+6. Set `OLLAMA_CONTEXT_LENGTH=32768` (or higher) in your Ollama environment for tool-use models
+
+**Notes:**
+- `host.docker.internal` resolves to the host machine from inside Docker
+- If Ollama runs on a different machine, replace with its IP/hostname
+- No API key is needed — Ollama requests are proxied without authentication
+- Streaming is automatically handled by the proxy for tool-call compatibility
 
 ### Login API
 

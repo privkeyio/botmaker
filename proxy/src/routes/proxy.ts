@@ -58,10 +58,19 @@ export function registerProxyRoutes(
     }
 
     // Select API key for vendor with tag-based routing
-    const keySelection = keyring.selectKeyForBot(vendor, botTags);
-    if (!keySelection) {
-      reply.status(503).send({ error: `No API keys available for vendor: ${vendor}` });
-      return;
+    let apiKey = '';
+    let keyId: string | null = null;
+
+    if (vendorConfig.noAuth) {
+      // No API key needed (e.g., local Ollama)
+    } else {
+      const keySelection = keyring.selectKeyForBot(vendor, botTags);
+      if (!keySelection) {
+        reply.status(503).send({ error: `No API keys available for vendor: ${vendor}` });
+        return;
+      }
+      apiKey = keySelection.secret;
+      keyId = keySelection.keyId;
     }
 
     const headers: Record<string, string> = {};
@@ -89,16 +98,17 @@ export function registerProxyRoutes(
           method: req.method,
           headers,
           body,
-          apiKey: keySelection.secret,
+          apiKey,
+          forceNonStreaming: vendorConfig.forceNonStreaming,
         },
         reply
       );
 
       // Log usage
-      db.logUsage(bot.id, vendor, keySelection.keyId, statusCode);
+      db.logUsage(bot.id, vendor, keyId, statusCode);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      db.logUsage(bot.id, vendor, keySelection.keyId, null);
+      db.logUsage(bot.id, vendor, keyId, null);
       reply.status(502).send({ error: `Upstream error: ${errorMessage}` });
     }
   });

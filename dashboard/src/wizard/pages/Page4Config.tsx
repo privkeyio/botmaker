@@ -3,7 +3,7 @@ import { useWizard } from '../context/WizardContext';
 import { getProvider, getModels } from '../../config/providers';
 import { getChannel } from '../../config/channels';
 import { ConfigSection } from '../components';
-import { fetchOllamaModels } from '../../api';
+import { fetchDynamicModels } from '../../api';
 import type { ModelInfo } from '../../config/providers';
 import './Page4Config.css';
 
@@ -24,7 +24,7 @@ function useDynamicModels(baseUrl: string, apiKey: string) {
   const refresh = useCallback(() => {
     if (!baseUrl) return;
     setLoading(true);
-    fetchOllamaModels(baseUrl, apiKey || undefined)
+    fetchDynamicModels(baseUrl, apiKey || undefined)
       .then((ids) => { setModels(ids.map((id) => ({ id }))); })
       .catch(() => { setModels([]); })
       .finally(() => { setLoading(false); });
@@ -61,7 +61,9 @@ export function Page4Config() {
 
   const getBaseUrl = (providerId: string): string => {
     const provider = getProvider(providerId);
-    return baseUrls[providerId] ?? provider?.baseUrl ?? '';
+    const override = baseUrls[providerId];
+    if (override) return override;
+    return provider?.baseUrl ?? '';
   };
 
   return (
@@ -80,6 +82,7 @@ export function Page4Config() {
                   baseUrl={getBaseUrl(providerId)}
                   onBaseUrlChange={(url) => {
                     setBaseUrls((prev) => ({ ...prev, [providerId]: url }));
+                    dispatch({ type: 'SET_PROVIDER_CONFIG', providerId, config: { baseUrl: url } });
                   }}
                   apiKey={apiKeys[providerId] ?? ''}
                   onApiKeyChange={(key) => {
@@ -237,21 +240,23 @@ function DynamicProviderConfig({
             className="wizard-input"
             value={baseUrl}
             onChange={(e) => { onBaseUrlChange(e.target.value); }}
-            placeholder="http://host.docker.internal:4001/v1"
+            placeholder="http://localhost:11434/v1"
           />
         </div>
       )}
 
-      <div className="wizard-form-group">
-        <label className="wizard-label">API Key (for model discovery)</label>
-        <input
-          type="password"
-          className="wizard-input"
-          value={apiKey}
-          onChange={(e) => { onApiKeyChange(e.target.value); }}
-          placeholder={provider?.keyHint ?? 'API key'}
-        />
-      </div>
+      {!provider?.noAuth && (
+        <div className="wizard-form-group">
+          <label className="wizard-label">API Key (for model discovery)</label>
+          <input
+            type="password"
+            className="wizard-input"
+            value={apiKey}
+            onChange={(e) => { onApiKeyChange(e.target.value); }}
+            placeholder={provider?.keyHint ?? 'API key'}
+          />
+        </div>
+      )}
 
       <div className="wizard-form-group">
         <label className="wizard-label">

@@ -91,7 +91,7 @@ interface CreateBotBody {
   hostname: string;
   emoji: string;
   avatarUrl?: string;
-  providers?: { providerId: string; model: string }[];
+  providers?: { providerId: string; model: string; baseUrl?: string }[];
   primaryProvider?: string;
   channels?: { channelType: string; token: string }[];
   persona: {
@@ -107,6 +107,11 @@ interface CreateBotBody {
     sessionScope: SessionScope;
   };
   tags?: string[];
+}
+
+/** Rewrite localhost URLs to host.docker.internal for use inside Docker containers. */
+function toDockerHostUrl(url: string): string {
+  return url.replace(/\blocalhost\b|127\.0\.0\.1/g, 'host.docker.internal');
 }
 
 async function resolveHostPaths(config: ReturnType<typeof getConfig>): Promise<{
@@ -330,13 +335,15 @@ export async function buildServer(): Promise<FastifyInstance> {
         writeSecret(bot.hostname, tokenName, channel.token);
       }
 
-      // Build proxy config for workspace if using proxy
-      const workspaceProxyConfig = proxyConfig && proxyToken
-        ? {
-            baseUrl: `http://keyring-proxy:9101/v1/${primaryProvider.providerId}`,
-            token: proxyToken,
-          }
-        : undefined;
+      // Build provider config for workspace
+      let workspaceProxyConfig: { baseUrl: string; token: string } | undefined;
+
+      if (proxyConfig && proxyToken) {
+        workspaceProxyConfig = {
+          baseUrl: `http://keyring-proxy:9101/v1/${primaryProvider.providerId}`,
+          token: proxyToken,
+        };
+      }
 
       // Create workspace
       createBotWorkspace(config.dataDir, {
@@ -604,10 +611,9 @@ export async function buildServer(): Promise<FastifyInstance> {
     }
   });
 
-  // Ollama/superproxy dynamic model listing
-  // Fetches from the superproxy's OpenAI-compatible /v1/models endpoint.
-  // Requires the superproxy master API key (stored as an "ollama" vendor key in keyring-proxy).
-  server.get<{ Querystring: { baseUrl?: string; apiKey?: string } }>('/api/ollama/models', async (request, reply) => {
+  // Dynamic model discovery for any OpenAI-compatible provider (e.g., Ollama)
+  // Fetches from the provider's /v1/models endpoint.
+  server.get<{ Querystring: { baseUrl?: string; apiKey?: string } }>('/api/models/discover', async (request, reply) => {
     const baseUrl = request.query.baseUrl;
     if (!baseUrl) {
       reply.code(400);
@@ -615,14 +621,16 @@ export async function buildServer(): Promise<FastifyInstance> {
     }
 
     try {
+      // Translate localhost → host.docker.internal for fetches from inside Docker
+      const fetchBase = toDockerHostUrl(baseUrl);
       // Append /models to the base URL, preserving path (e.g. /v1 → /v1/models)
-      const url = baseUrl.replace(/\/+$/, '') + '/models';
+      const url = fetchBase.replace(/\/+$/, '') + '/models';
       const controller = new AbortController();
       const timeout = setTimeout(() => { controller.abort(); }, 5000);
 
       const headers: Record<string, string> = {};
       if (request.query.apiKey) {
-        headers['Authorization'] = `Bearer ${request.query.apiKey}`;
+        headers.Authorization = `Bearer ${request.query.apiKey}`;
       }
 
       const response = await fetch(url, { signal: controller.signal, headers });

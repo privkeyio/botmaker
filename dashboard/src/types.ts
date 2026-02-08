@@ -69,6 +69,7 @@ export interface WizardFeatures {
 export interface ProviderConfigInput {
   providerId: string;
   model: string;
+  baseUrl?: string;  // For direct providers — written to workspace config
 }
 
 export interface ChannelConfigInput {

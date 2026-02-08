@@ -59,6 +59,8 @@ services:
       - DB_PATH=/data/proxy.db
       - MASTER_KEY_FILE=/secrets/master_key
       - ADMIN_TOKEN_FILE=/secrets/admin_token
+      # Optional: enables Ollama vendor (local LLM support)
+      # - OLLAMA_UPSTREAM=http://host.docker.internal:11434
     volumes:
       - proxy-data:/data
       - ./secrets:/secrets:ro

@@ -179,8 +179,8 @@ export async function fetchProxyHealth(): Promise<ProxyHealthResponse> {
   return handleResponse<ProxyHealthResponse>(response);
 }
 
-export async function fetchOllamaModels(baseUrl: string, apiKey?: string): Promise<string[]> {
-  let url = `${API_BASE}/ollama/models?baseUrl=${encodeURIComponent(baseUrl)}`;
+export async function fetchDynamicModels(baseUrl: string, apiKey?: string): Promise<string[]> {
+  let url = `${API_BASE}/models/discover?baseUrl=${encodeURIComponent(baseUrl)}`;
   if (apiKey) {
     url += `&apiKey=${encodeURIComponent(apiKey)}`;
   }
@@ -188,3 +188,6 @@ export async function fetchOllamaModels(baseUrl: string, apiKey?: string): Promi
   const data = await handleResponse<{ models: string[] }>(response);
   return data.models;
 }
+
+/** @deprecated Use fetchDynamicModels instead */
+export const fetchOllamaModels = fetchDynamicModels;

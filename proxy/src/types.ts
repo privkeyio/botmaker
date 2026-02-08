@@ -31,9 +31,11 @@ export interface VendorConfig {
   authFormat: (key: string) => string;
   port?: number;          // default: 443
   protocol?: 'http' | 'https'; // default: 'https'
+  noAuth?: boolean;            // Skip API key injection (e.g., local Ollama)
+  forceNonStreaming?: boolean;  // Strip stream:true, convert response to SSE
 }
 
-export const VENDOR_CONFIGS: Record<string, VendorConfig> = {
+const VENDOR_CONFIGS: Record<string, VendorConfig> = {
   openai: {
     host: 'api.openai.com',
     basePath: '/v1',
@@ -64,12 +66,20 @@ export const VENDOR_CONFIGS: Record<string, VendorConfig> = {
     authHeader: 'Authorization',
     authFormat: (key) => `Bearer ${key}`,
   },
-  ollama: {
-    host: 'host.docker.internal',
+};
+
+export { VENDOR_CONFIGS };
+
+export function initOllamaVendor(upstream: string): void {
+  const url = new URL(upstream);
+  VENDOR_CONFIGS.ollama = {
+    host: url.hostname,
+    port: parseInt(url.port) || (url.protocol === 'https:' ? 443 : 80),
+    protocol: url.protocol === 'https:' ? 'https' : 'http',
     basePath: '/v1',
     authHeader: 'Authorization',
-    authFormat: (key) => `Bearer ${key}`,
-    port: 4001,
-    protocol: 'http',
-  },
-};
+    authFormat: () => '',
+    noAuth: true,
+    forceNonStreaming: true,
+  };
+}
