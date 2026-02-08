@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { AddKeyInput } from '../types';
-import { PROVIDERS, getKeyHint } from '../config/providers';
+import { PROVIDERS, PROVIDER_CATEGORIES, getKeyHint } from '../config/providers';
 import './AddKeyForm.css';
 
 interface AddKeyFormProps {
@@ -15,6 +15,8 @@ export function AddKeyForm({ onSubmit, onCancel, loading }: AddKeyFormProps) {
   const [label, setLabel] = useState('');
   const [tag, setTag] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const providerMap = new Map(PROVIDERS.map((p) => [p.id, p]));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,11 +60,22 @@ export function AddKeyForm({ onSubmit, onCancel, loading }: AddKeyFormProps) {
           onChange={(e) => { setVendor(e.target.value); }}
           disabled={loading}
         >
-          {PROVIDERS.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
+          {PROVIDER_CATEGORIES.map((cat) => {
+            const providers = cat.providerIds
+              .map((id) => providerMap.get(id))
+              .filter((p) => p !== undefined)
+              .filter((p) => !p.noAuth);
+            if (providers.length === 0) return null;
+            return (
+              <optgroup key={cat.id} label={cat.label}>
+                {providers.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
+              </optgroup>
+            );
+          })}
         </select>
       </div>
 

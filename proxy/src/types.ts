@@ -72,6 +72,96 @@ const VENDOR_CONFIGS: Record<string, VendorConfig> = {
     authHeader: 'Authorization',
     authFormat: (key) => `Bearer ${key}`,
   },
+  deepseek: {
+    host: 'api.deepseek.com',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  mistral: {
+    host: 'api.mistral.ai',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  groq: {
+    host: 'api.groq.com',
+    basePath: '/openai/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  cerebras: {
+    host: 'api.cerebras.ai',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  fireworks: {
+    host: 'api.fireworks.ai',
+    basePath: '/inference/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  togetherai: {
+    host: 'api.together.xyz',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  deepinfra: {
+    host: 'api.deepinfra.com',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  perplexity: {
+    host: 'api.perplexity.ai',
+    basePath: '',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  nvidia: {
+    host: 'integrate.api.nvidia.com',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  minimax: {
+    host: 'api.minimax.chat',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  moonshot: {
+    host: 'api.moonshot.ai',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  scaleway: {
+    host: 'api.scaleway.ai',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  nebius: {
+    host: 'api.tokenfactory.nebius.com',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  ovhcloud: {
+    host: 'api.endpoints.ai.ovh.net',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
+  huggingface: {
+    host: 'api-inference.huggingface.co',
+    basePath: '/v1',
+    authHeader: 'Authorization',
+    authFormat: (key) => `Bearer ${key}`,
+  },
 };
 
 export { VENDOR_CONFIGS };

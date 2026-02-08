@@ -1,15 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { PROVIDERS, getProvider, getDefaultModel, getModels, getKeyHint } from './index';
+import { PROVIDERS, PROVIDER_CATEGORIES, getProvider, getDefaultModel, getModels, getKeyHint } from './index';
 
 describe('Provider configs', () => {
-  it('should include grok in PROVIDERS', () => {
-    const ids = PROVIDERS.map((p) => p.id);
-    expect(ids).toContain('grok');
-  });
-
   it('should include all expected providers', () => {
     const ids = PROVIDERS.map((p) => p.id);
-    expect(ids).toEqual(['openai', 'anthropic', 'google', 'venice', 'openrouter', 'ollama', 'grok']);
+    expect(ids).toEqual([
+      'openai', 'anthropic', 'google', 'deepseek', 'mistral',
+      'groq', 'cerebras', 'fireworks',
+      'openrouter', 'venice', 'togetherai', 'deepinfra',
+      'perplexity', 'nvidia', 'moonshot', 'grok',
+      'scaleway', 'nebius', 'ovhcloud', 'huggingface', 'minimax',
+      'ollama',
+    ]);
+  });
+
+  it('should have 22 providers', () => {
+    expect(PROVIDERS).toHaveLength(22);
   });
 
   it('getProvider returns correct config for grok', () => {
@@ -49,6 +55,22 @@ describe('Provider configs', () => {
       if (!p.dynamicModels) {
         expect(p.models.length).toBeGreaterThan(0);
         expect(p.defaultModel).toBeTruthy();
+      }
+    }
+  });
+
+  it('every provider is in exactly one category', () => {
+    for (const p of PROVIDERS) {
+      const cats = PROVIDER_CATEGORIES.filter((c) => c.providerIds.includes(p.id));
+      expect(cats, `${p.id} should be in exactly one category`).toHaveLength(1);
+    }
+  });
+
+  it('every category provider ID exists in PROVIDERS', () => {
+    const providerIds = new Set(PROVIDERS.map((p) => p.id));
+    for (const cat of PROVIDER_CATEGORIES) {
+      for (const id of cat.providerIds) {
+        expect(providerIds.has(id), `category "${cat.id}" references unknown provider "${id}"`).toBe(true);
       }
     }
   });

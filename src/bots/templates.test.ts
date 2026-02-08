@@ -3,7 +3,7 @@ import { mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import { createBotWorkspace, getBotWorkspacePath, deleteBotWorkspace, type BotWorkspaceConfig } from './templates.js';
+import { createBotWorkspace, getBotWorkspacePath, deleteBotWorkspace, getApiTypeForProvider, type BotWorkspaceConfig } from './templates.js';
 
 describe('templates', () => {
   let testDir: string;
@@ -34,6 +34,31 @@ describe('templates', () => {
       ...overrides,
     };
   }
+
+  describe('getApiTypeForProvider', () => {
+    const openaiCompletionsProviders = [
+      'venice', 'openrouter', 'ollama', 'grok',
+      'deepseek', 'mistral', 'groq', 'cerebras', 'fireworks',
+      'togetherai', 'deepinfra', 'perplexity', 'nvidia',
+      'minimax', 'moonshot', 'scaleway', 'nebius', 'ovhcloud', 'huggingface',
+    ];
+
+    it.each(openaiCompletionsProviders)('%s returns openai-completions', (provider) => {
+      expect(getApiTypeForProvider(provider)).toBe('openai-completions');
+    });
+
+    it('anthropic returns anthropic-messages', () => {
+      expect(getApiTypeForProvider('anthropic')).toBe('anthropic-messages');
+    });
+
+    it('google returns google-gemini', () => {
+      expect(getApiTypeForProvider('google')).toBe('google-gemini');
+    });
+
+    it('openai returns openai-responses', () => {
+      expect(getApiTypeForProvider('openai')).toBe('openai-responses');
+    });
+  });
 
   describe('getBotWorkspacePath', () => {
     it('should return correct path', () => {

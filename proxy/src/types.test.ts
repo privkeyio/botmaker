@@ -30,4 +30,17 @@ describe('VENDOR_CONFIGS', () => {
       expect(typeof config.authFormat, `${name}.authFormat`).toBe('function');
     }
   });
+
+  const newVendors = [
+    'deepseek', 'mistral', 'groq', 'cerebras', 'fireworks',
+    'togetherai', 'deepinfra', 'perplexity', 'nvidia', 'minimax',
+    'moonshot', 'scaleway', 'nebius', 'ovhcloud', 'huggingface',
+  ];
+
+  it.each(newVendors)('%s vendor uses Bearer auth', (vendor) => {
+    const config = VENDOR_CONFIGS[vendor];
+    expect(config, `${vendor} should be defined`).toBeDefined();
+    expect(config.authHeader).toBe('Authorization');
+    expect(config.authFormat('test-key')).toBe('Bearer test-key');
+  });
 });

@@ -20,6 +20,24 @@
   margin: 0;
 }
 
+.page3-provider-search {
+  margin-bottom: var(--space-xs);
+}
+
+.page3-provider-category {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.page3-category-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
 .page3-checkbox-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

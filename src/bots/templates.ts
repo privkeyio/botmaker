@@ -65,6 +65,21 @@ export function getApiTypeForProvider(provider: string): string {
     case 'openrouter':
     case 'ollama':
     case 'grok':
+    case 'deepseek':
+    case 'mistral':
+    case 'groq':
+    case 'cerebras':
+    case 'fireworks':
+    case 'togetherai':
+    case 'deepinfra':
+    case 'perplexity':
+    case 'nvidia':
+    case 'minimax':
+    case 'moonshot':
+    case 'scaleway':
+    case 'nebius':
+    case 'ovhcloud':
+    case 'huggingface':
       return 'openai-completions'; // OpenAI-compatible APIs
     case 'openai':
     default:

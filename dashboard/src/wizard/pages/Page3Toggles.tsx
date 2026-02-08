@@ -1,20 +1,36 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useWizard } from '../context/WizardContext';
-import { PROVIDERS } from '../../config/providers';
+import { PROVIDERS, PROVIDER_CATEGORIES } from '../../config/providers';
 import { POPULAR_CHANNELS, OTHER_CHANNELS } from '../../config/channels';
 import { FeatureCheckbox } from '../components';
 import type { SessionScope } from '../../types';
 import './Page3Toggles.css';
 
-const POPULAR_PROVIDERS = ['openai', 'anthropic', 'venice', 'ollama'];
+const ALWAYS_VISIBLE_CATEGORIES = ['major', 'local'];
+const providerMap = new Map(PROVIDERS.map((p) => [p.id, p]));
 
 export function Page3Toggles() {
   const { state, dispatch } = useWizard();
   const [showAllProviders, setShowAllProviders] = useState(false);
   const [showAllChannels, setShowAllChannels] = useState(false);
+  const [providerSearch, setProviderSearch] = useState('');
 
-  const popularProviders = PROVIDERS.filter((p) => POPULAR_PROVIDERS.includes(p.id));
-  const otherProviders = PROVIDERS.filter((p) => !POPULAR_PROVIDERS.includes(p.id));
+  const isSearching = providerSearch.trim().length > 0;
+  const searchLower = providerSearch.trim().toLowerCase();
+
+  const filteredCategories = useMemo(() => {
+    return PROVIDER_CATEGORIES.map((cat) => {
+      const providers = cat.providerIds
+        .map((id) => providerMap.get(id))
+        .filter((p) => p !== undefined)
+        .filter((p) => !isSearching || p.label.toLowerCase().includes(searchLower) || p.id.toLowerCase().includes(searchLower));
+      return { ...cat, providers };
+    }).filter((cat) => cat.providers.length > 0);
+  }, [isSearching, searchLower]);
+
+  const hiddenCategoryCount = isSearching
+    ? 0
+    : filteredCategories.filter((c) => !ALWAYS_VISIBLE_CATEGORIES.includes(c.id)).reduce((sum, c) => sum + c.providers.length, 0);
 
   const handleProviderToggle = (providerId: string) => {
     dispatch({ type: 'TOGGLE_PROVIDER', providerId });
@@ -34,7 +50,6 @@ export function Page3Toggles() {
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Parse comma-separated tags, trim whitespace
     const tags = value
       .split(',')
       .map((t) => t.trim().toLowerCase())
@@ -46,29 +61,21 @@ export function Page3Toggles() {
     <div className="page3-toggles">
       <section className="page3-section">
         <h4 className="page3-section-title">LLM Providers</h4>
-        <div className="page3-checkbox-grid">
-          {popularProviders.map((provider) => (
-            <FeatureCheckbox
-              key={provider.id}
-              id={`provider-${provider.id}`}
-              label={provider.label}
-              checked={state.enabledProviders.includes(provider.id)}
-              onChange={() => { handleProviderToggle(provider.id); }}
-            />
-          ))}
-        </div>
-        {otherProviders.length > 0 && (
-          <>
-            <button
-              type="button"
-              className="page3-show-more"
-              onClick={() => { setShowAllProviders(!showAllProviders); }}
-            >
-              {showAllProviders ? 'Show less' : `Show all (${otherProviders.length} more)`}
-            </button>
-            {showAllProviders && (
+        <input
+          type="text"
+          className="page3-provider-search wizard-input"
+          placeholder="Search providers..."
+          value={providerSearch}
+          onChange={(e) => { setProviderSearch(e.target.value); }}
+        />
+        {filteredCategories.map((cat) => {
+          const isVisible = isSearching || showAllProviders || ALWAYS_VISIBLE_CATEGORIES.includes(cat.id);
+          if (!isVisible) return null;
+          return (
+            <div key={cat.id} className="page3-provider-category">
+              <span className="page3-category-label">{cat.label}</span>
               <div className="page3-checkbox-grid">
-                {otherProviders.map((provider) => (
+                {cat.providers.map((provider) => (
                   <FeatureCheckbox
                     key={provider.id}
                     id={`provider-${provider.id}`}
@@ -78,8 +85,17 @@ export function Page3Toggles() {
                   />
                 ))}
               </div>
-            )}
-          </>
+            </div>
+          );
+        })}
+        {!isSearching && hiddenCategoryCount > 0 && (
+          <button
+            type="button"
+            className="page3-show-more"
+            onClick={() => { setShowAllProviders(!showAllProviders); }}
+          >
+            {showAllProviders ? 'Show less' : `Show all (${hiddenCategoryCount} more)`}
+          </button>
         )}
       </section>
 
