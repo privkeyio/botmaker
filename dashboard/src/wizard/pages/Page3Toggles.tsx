@@ -7,17 +7,13 @@ import type { SessionScope } from '../../types';
 import './Page3Toggles.css';
 
 const ALWAYS_VISIBLE_CATEGORIES = ['major', 'local'];
+const providerMap = new Map(PROVIDERS.map((p) => [p.id, p]));
 
 export function Page3Toggles() {
   const { state, dispatch } = useWizard();
   const [showAllProviders, setShowAllProviders] = useState(false);
   const [showAllChannels, setShowAllChannels] = useState(false);
   const [providerSearch, setProviderSearch] = useState('');
-
-  const providerMap = useMemo(() => {
-    const map = new Map(PROVIDERS.map((p) => [p.id, p]));
-    return map;
-  }, []);
 
   const isSearching = providerSearch.trim().length > 0;
   const searchLower = providerSearch.trim().toLowerCase();
@@ -30,7 +26,7 @@ export function Page3Toggles() {
         .filter((p) => !isSearching || p.label.toLowerCase().includes(searchLower) || p.id.toLowerCase().includes(searchLower));
       return { ...cat, providers };
     }).filter((cat) => cat.providers.length > 0);
-  }, [providerMap, isSearching, searchLower]);
+  }, [isSearching, searchLower]);
 
   const hiddenCategoryCount = isSearching
     ? 0
