@@ -81,6 +81,12 @@ export function BotCard({ bot, onStart, onStop, onDelete, loading }: BotCardProp
             <span className="bot-card-detail-value">{bot.port}</span>
           </div>
         )}
+        {bot.image_version && (
+          <div className="bot-card-detail">
+            <span className="bot-card-detail-label">Image</span>
+            <span className="bot-card-detail-value">{bot.image_version}</span>
+          </div>
+        )}
       </div>
 
       {bot.port && (isRunning || isStarting) && (

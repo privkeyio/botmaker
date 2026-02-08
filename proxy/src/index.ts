@@ -6,9 +6,17 @@ import { ProxyDatabase } from './db/index.js';
 import { KeyringService } from './services/keyring.js';
 import { registerAdminRoutes } from './routes/admin.js';
 import { registerProxyRoutes } from './routes/proxy.js';
+import { initOllamaVendor } from './types.js';
 
 async function main(): Promise<void> {
   const config = loadConfig();
+
+  // Initialize Ollama vendor if upstream is configured
+  const ollamaUpstream = process.env.OLLAMA_UPSTREAM;
+  if (ollamaUpstream) {
+    initOllamaVendor(ollamaUpstream);
+    console.log(`Ollama vendor configured: ${ollamaUpstream}`);
+  }
 
   // Initialize database
   const db = new ProxyDatabase(config.dbPath);

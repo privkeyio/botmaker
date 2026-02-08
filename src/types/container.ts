@@ -52,6 +52,8 @@ export interface ContainerConfig {
   gatewayToken: string;
   /** Docker network to join (optional, for proxy connectivity) */
   networkName?: string;
+  /** Extra /etc/hosts entries (e.g., ["host.docker.internal:host-gateway"]) */
+  extraHosts?: string[];
 }
 
 /** Container resource statistics */

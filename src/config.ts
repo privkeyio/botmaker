@@ -89,7 +89,7 @@ export function getConfig(): AppConfig {
     secretsDir: getEnvOrDefault('SECRETS_DIR', './secrets'),
     dataVolumeName: process.env.DATA_VOLUME_NAME ?? null,
     secretsVolumeName: process.env.SECRETS_VOLUME_NAME ?? null,
-    openclawImage: getEnvOrDefault('OPENCLAW_IMAGE', 'openclaw:latest'),
+    openclawImage: getEnvOrDefault('OPENCLAW_IMAGE', 'ghcr.io/openclaw/openclaw:latest'),
     openclawGitTag: getEnvOrDefault('OPENCLAW_GIT_TAG', 'main'),
     botPortStart: getEnvIntOrDefault('BOT_PORT_START', 19000),
     proxyAdminUrl: process.env.PROXY_ADMIN_URL ?? null,

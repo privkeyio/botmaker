@@ -65,8 +65,10 @@ describe('templates', () => {
       const workspaceDir = join(testDir, 'bots', config.botHostname, 'workspace');
       expect(existsSync(join(workspaceDir, 'SOUL.md'))).toBe(true);
       expect(existsSync(join(workspaceDir, 'IDENTITY.md'))).toBe(true);
-      expect(existsSync(join(workspaceDir, 'AGENTS.md'))).toBe(true);
-      expect(existsSync(join(workspaceDir, 'BOOTSTRAP.md'))).toBe(true);
+      // AGENTS.md and BOOTSTRAP.md are NOT written by BotMaker;
+      // OpenClaw's ensureAgentWorkspace() creates them from its own templates
+      expect(existsSync(join(workspaceDir, 'AGENTS.md'))).toBe(false);
+      expect(existsSync(join(workspaceDir, 'BOOTSTRAP.md'))).toBe(false);
     });
 
     it('should create openclaw.json without proxy', () => {
@@ -211,14 +213,11 @@ describe('templates', () => {
 
       const soul = readFileSync(join(workspaceDir, 'SOUL.md'), 'utf-8');
       expect(soul).toContain('A friendly helper');
-      expect(soul).toContain('Buddy');
+      expect(soul).toContain('I assist with tasks');
 
       const identity = readFileSync(join(workspaceDir, 'IDENTITY.md'), 'utf-8');
       expect(identity).toContain('Buddy');
-
-      const agents = readFileSync(join(workspaceDir, 'AGENTS.md'), 'utf-8');
-      expect(agents).toContain('Buddy');
-      expect(agents).toContain('I assist with tasks');
+      expect(identity).toContain('A friendly helper');
     });
   });
 

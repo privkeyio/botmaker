@@ -22,6 +22,7 @@ export interface Bot {
   container_id: string | null;
   port: number | null;
   gateway_token: string | null;
+  image_version: string | null;
   status: BotStatus;
   created_at: string;
   updated_at: string;
@@ -68,6 +69,7 @@ export interface WizardFeatures {
 export interface ProviderConfigInput {
   providerId: string;
   model: string;
+  baseUrl?: string;  // For direct providers — written to workspace config
 }
 
 export interface ChannelConfigInput {

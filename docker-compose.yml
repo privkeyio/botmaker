@@ -5,12 +5,14 @@ services:
       context: .
       dockerfile: Dockerfile.botenv
       args:
-        BASE_IMAGE: ${OPENCLAW_BASE_IMAGE:-openclaw:latest}
+        BASE_IMAGE: ${OPENCLAW_BASE_IMAGE:-ghcr.io/openclaw/openclaw:latest}
     image: ${BOTENV_IMAGE:-botmaker-env:latest}
 
   botmaker:
     build: .
     container_name: botmaker
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "7100:7100"
     volumes:
@@ -49,12 +51,16 @@ services:
   keyring-proxy:
     build: ./proxy
     container_name: keyring-proxy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - ADMIN_PORT=9100
       - DATA_PORT=9101
       - DB_PATH=/data/proxy.db
       - MASTER_KEY_FILE=/secrets/master_key
       - ADMIN_TOKEN_FILE=/secrets/admin_token
+      # Optional: enables Ollama vendor (local LLM support)
+      # - OLLAMA_UPSTREAM=http://host.docker.internal:11434
     volumes:
       - proxy-data:/data
       - ./secrets:/secrets:ro

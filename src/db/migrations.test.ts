@@ -64,7 +64,7 @@ describe('Database Migrations', () => {
       runMigrations(db);
 
       const version = getMigrationVersion();
-      expect(version).toBe(4); // v0, v1, v2, v3, v4
+      expect(version).toBe(5); // v0, v1, v2, v3, v4, v5
     });
 
     it('should add port column (v1)', () => {
@@ -90,6 +90,14 @@ describe('Database Migrations', () => {
       const columns = getColumns('bots');
       expect(columns).toContain('tags');
     });
+
+    it('should add image_version column (v5)', () => {
+      createBaseSchema();
+      runMigrations(db);
+
+      const columns = getColumns('bots');
+      expect(columns).toContain('image_version');
+    });
   });
 
   describe('idempotent re-run', () => {
@@ -102,7 +110,7 @@ describe('Database Migrations', () => {
       runMigrations(db);
 
       const version = getMigrationVersion();
-      expect(version).toBe(4);
+      expect(version).toBe(5);
     });
 
     it('should not duplicate migration records', () => {
@@ -111,7 +119,7 @@ describe('Database Migrations', () => {
       runMigrations(db);
 
       const count = db.prepare('SELECT COUNT(*) as count FROM migrations').get() as { count: number };
-      expect(count.count).toBe(5); // v0, v1, v2, v3, v4
+      expect(count.count).toBe(6); // v0, v1, v2, v3, v4, v5
     });
   });
 
@@ -160,9 +168,10 @@ describe('Database Migrations', () => {
 
       const columns = getColumns('bots');
       expect(columns).toContain('tags');
+      expect(columns).toContain('image_version');
 
       const version = getMigrationVersion();
-      expect(version).toBe(4);
+      expect(version).toBe(5);
     });
   });
 });

@@ -74,4 +74,15 @@ export function runMigrations(db: Database.Database): void {
       );
     })();
   }
+
+  // Migration v5: Add image_version column to track which image each bot was created with
+  if (currentVersion < 5) {
+    db.transaction(() => {
+      db.exec('ALTER TABLE bots ADD COLUMN image_version TEXT');
+      db.prepare('INSERT INTO migrations (version, applied_at) VALUES (?, ?)').run(
+        5,
+        new Date().toISOString()
+      );
+    })();
+  }
 }

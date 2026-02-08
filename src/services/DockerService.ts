@@ -38,15 +38,17 @@ export class DockerService {
     const containerName = `botmaker-${hostname}`;
 
     try {
+      const env = [
+        ...config.environment,
+        `OPENCLAW_STATE_DIR=/app/botdata`,
+        `OPENCLAW_GATEWAY_TOKEN=${config.gatewayToken}`,
+      ];
+
       const container = await this.docker.createContainer({
         name: containerName,
         Image: config.image,
-        Cmd: ['node', 'dist/index.js', 'gateway'],
-        Env: [
-          ...config.environment,
-          `OPENCLAW_STATE_DIR=/app/botdata`,
-          `OPENCLAW_GATEWAY_TOKEN=${config.gatewayToken}`,
-        ],
+        Cmd: ['node', 'openclaw.mjs', 'gateway'],
+        Env: env,
         ExposedPorts: {
           [`${config.port}/tcp`]: {}
         },
@@ -74,7 +76,8 @@ export class DockerService {
           RestartPolicy: {
             Name: 'unless-stopped'
           },
-          NetworkMode: config.networkName ?? 'bridge'
+          NetworkMode: config.networkName ?? 'bridge',
+          ...(config.extraHosts && { ExtraHosts: config.extraHosts }),
         }
       });
 

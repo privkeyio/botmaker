@@ -19,7 +19,7 @@ export interface WizardState {
     sandboxTimeout: number;
     sessionScope: SessionScope;
   };
-  providerConfigs: Record<string, { model?: string } | undefined>;
+  providerConfigs: Record<string, { model?: string; baseUrl?: string } | undefined>;
   channelConfigs: Record<string, { token: string } | undefined>;
 }
 
@@ -86,6 +86,7 @@ export function buildCreateBotInput(state: WizardState): CreateBotInput {
   const providers = state.enabledProviders.map((providerId) => ({
     providerId,
     model: state.providerConfigs[providerId]?.model ?? '',
+    baseUrl: state.providerConfigs[providerId]?.baseUrl,
   }));
 
   const channels = state.enabledChannels.map((channelType) => ({

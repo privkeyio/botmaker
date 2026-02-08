@@ -2,7 +2,7 @@
 # Build: docker compose build botenv
 # Usage: Automatically used by botmaker when spawning bot containers
 
-ARG BASE_IMAGE=openclaw:latest
+ARG BASE_IMAGE=ghcr.io/openclaw/openclaw:latest
 FROM ${BASE_IMAGE}
 
 # Switch to root for package installation
@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps lsof \
     iproute2 netcat-openbsd dnsutils \
  && rm -rf /var/lib/apt/lists/*
+
+# Make openclaw CLI available on PATH
+RUN ln -s /app/openclaw.mjs /usr/local/bin/openclaw
 
 # Switch back to non-root user
 USER node

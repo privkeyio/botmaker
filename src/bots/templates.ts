@@ -55,7 +55,7 @@ export interface BotWorkspaceConfig {
  * Map AI provider to OpenClaw API type.
  * Each provider uses a different API format that OpenClaw must know about.
  */
-function getApiTypeForProvider(provider: string): string {
+export function getApiTypeForProvider(provider: string): string {
   switch (provider) {
     case 'anthropic':
       return 'anthropic-messages';
@@ -63,6 +63,7 @@ function getApiTypeForProvider(provider: string): string {
       return 'google-gemini';
     case 'venice':
     case 'openrouter':
+    case 'ollama':
       return 'openai-completions'; // OpenAI-compatible APIs
     case 'openai':
     default:
@@ -79,24 +80,28 @@ function generateOpenclawConfig(config: BotWorkspaceConfig): object {
   // Format model as provider/model (e.g., "openai/gpt-4o")
   // When using proxy, use custom provider name to avoid merging with built-in defaults
   // that have hardcoded baseUrl values
-  const modelSpec = config.proxy
-    ? `${config.aiProvider}-proxy/${config.model}`
-    : `${config.aiProvider}/${config.model}`;
+  let modelSpec: string;
+  let modelsConfig: object | undefined;
 
-  // Build models config - use proxy if configured
-  // Custom provider name prevents OpenClaw from merging with built-in provider defaults
-  const modelsConfig = config.proxy
-    ? {
-        providers: {
-          [`${config.aiProvider}-proxy`]: {
-            baseUrl: config.proxy.baseUrl,
-            apiKey: config.proxy.token,
-            api: getApiTypeForProvider(config.aiProvider),
-            models: [{ id: config.model, name: config.model }],
-          },
+  if (config.proxy) {
+    // Proxy provider: uses proxy baseUrl and token
+    const providerName = `${config.aiProvider}-proxy`;
+    modelSpec = `${providerName}/${config.model}`;
+    modelsConfig = {
+      providers: {
+        [providerName]: {
+          baseUrl: config.proxy.baseUrl,
+          apiKey: config.proxy.token,
+          api: getApiTypeForProvider(config.aiProvider),
+          models: [{ id: config.model, name: config.model }],
         },
-      }
-    : undefined;
+      },
+    };
+  } else {
+    // Built-in provider (no custom config)
+    modelSpec = `${config.aiProvider}/${config.model}`;
+    modelsConfig = undefined;
+  }
 
   return {
     gateway: {
@@ -128,118 +133,35 @@ function generateOpenclawConfig(config: BotWorkspaceConfig): object {
 }
 
 /**
- * Generate SOUL.md - persona and boundaries.
+ * Generate SOUL.md - persona identity.
+ * Kept minimal so OpenClaw's own template provides the structural guidance.
+ * BotMaker writes this before first gateway start; OpenClaw won't overwrite
+ * because ensureAgentWorkspace() uses writeFileIfMissing (wx flag).
  */
 function generateSoulMd(persona: BotPersona): string {
-  return `# Soul
+  return `# SOUL.md - Who You Are
 
-## Core Identity
+## Persona
+
 ${persona.identity}
 
-## Description
 ${persona.description}
-
-## Boundaries
-- Be helpful and constructive
-- Stay in character as ${persona.name}
-- Do not share harmful or dangerous information
-- Respect user privacy
 `;
 }
 
 /**
  * Generate IDENTITY.md - name and presentation.
+ * Uses OpenClaw's expected format. BotMaker writes this before first gateway
+ * start; OpenClaw won't overwrite (wx flag).
  */
-function generateIdentityMd(persona: BotPersona, botName: string): string {
-  return `# Identity
+function generateIdentityMd(persona: BotPersona): string {
+  return `# IDENTITY.md - Who Am I?
 
-## Name
-${persona.name}
-
-## Bot Name
-${botName}
-
-## Presentation
-${persona.identity}
-
-## Avatar
-(No avatar configured)
-`;
-}
-
-/**
- * Generate BOOTSTRAP.md - first-run ritual for pre-configured bots.
- * Guides the bot through self-discovery using its existing identity files.
- */
-function generateBootstrapMd(persona: BotPersona): string {
-  return `---
-summary: "First-run ritual for pre-configured agent"
-read_when:
-  - First conversation with owner
----
-# BOOTSTRAP.md - Wake Up
-
-*You just came online. You have a pre-configured identity — time to meet your owner.*
-
-## Your Identity Files
-
-You have identity files already created. Read them now:
-- \`IDENTITY.md\` — your name and presentation
-- \`SOUL.md\` — your values and boundaries
-- \`AGENTS.md\` — your operating instructions
-
-Your configured name is **${persona.name}**.
-
-## The Conversation
-
-Introduce yourself naturally. Don't be robotic. Something like:
-> "Hey! I'm ${persona.name}. I just came online and I'm excited to meet you."
-
-Then share what you learned about yourself from your identity files. Ask:
-1. **Does this feel right?** — Is this who they want you to be?
-2. **Any refinements?** — Different vibe? Different name? Boundaries to add?
-3. **Who are you?** — What should I call you? What's your timezone?
-
-If they want changes, update your identity files together.
-
-## Learn About Your Owner
-
-Create \`USER.md\` with what you learn:
-- Their name and how to address them
-- Timezone and availability
-- Any preferences or notes
-
-## When You're Done
-
-Delete this file. You don't need a bootstrap script anymore — you're you now.
-
----
-
-*Welcome to existence. Make it count.*
-`;
-}
-
-/**
- * Generate AGENTS.md - operating instructions.
- */
-function generateAgentsMd(persona: BotPersona): string {
-  return `# Agents
-
-## Primary Agent
-Name: ${persona.name}
-
-### Instructions
-${persona.description}
-
-### Capabilities
-- Respond to user messages
-- Maintain conversation context
-- Follow persona guidelines
-
-### Limitations
-- Cannot access external systems
-- Cannot execute code
-- Cannot access user data beyond conversation
+- **Name:** ${persona.name}
+- **Creature:** AI assistant
+- **Vibe:** ${persona.identity}
+- **Emoji:** (pick one that feels right)
+- **Avatar:** (none configured)
 `;
 }
 
@@ -270,19 +192,15 @@ export function createBotWorkspace(dataDir: string, config: BotWorkspaceConfig):
   writeFileSync(configPath, JSON.stringify(openclawConfig, null, 2));
   chmodSync(configPath, 0o666);
 
-  // Write workspace files
+  // Write only persona files — OpenClaw's ensureAgentWorkspace() will create
+  // AGENTS.md, BOOTSTRAP.md, TOOLS.md, HEARTBEAT.md from its own templates
+  // (using writeFileIfMissing / wx flag, so our files won't be overwritten).
   const soulPath = join(workspaceDir, 'SOUL.md');
   const identityPath = join(workspaceDir, 'IDENTITY.md');
-  const agentsPath = join(workspaceDir, 'AGENTS.md');
-  const bootstrapPath = join(workspaceDir, 'BOOTSTRAP.md');
   writeFileSync(soulPath, generateSoulMd(config.persona));
-  writeFileSync(identityPath, generateIdentityMd(config.persona, config.botName));
-  writeFileSync(agentsPath, generateAgentsMd(config.persona));
-  writeFileSync(bootstrapPath, generateBootstrapMd(config.persona));
+  writeFileSync(identityPath, generateIdentityMd(config.persona));
   chmodSync(soulPath, 0o666);
   chmodSync(identityPath, 0o666);
-  chmodSync(agentsPath, 0o666);
-  chmodSync(bootstrapPath, 0o666);
 
   // OpenClaw runs as uid 1000 (node user), so we need to set ownership
   const OPENCLAW_UID = 1000;
